@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Äta Tillsammans - Profil</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
+<style>
+  /* --- Grundläggande styling --- */
+  body { font-family: 'Poppins', sans-serif; background:#fafafa; margin:0; color:#333; }
+  .navbar { display:flex; align-items:center; padding:10px 20px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  .navbar .logo img { height:40px; }
+  .navbar .icon img { height:32px; cursor:pointer; margin-left:auto; }
+  .dropdown { display:none; flex-direction:column; position:absolute; top:60px; right:20px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  .dropdown a { padding:10px 20px; text-decoration:none; color:#333; }
+
+  .profile-section { display:flex; justify-content:center; align-items:center; margin:50px 0; }
+  .container { background:white; padding:40px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); width:350px; text-align:center; }
+  .tabs { display:flex; justify-content:space-around; margin-bottom:20px; }
+  .tabs button { flex:1; padding:10px; background:transparent; border:none; border-bottom:2px solid transparent; font-size:16px; cursor:pointer; transition:0.3s; }
+  .tabs button.active { border-bottom:2px solid black; font-weight:600; color:black; }
+  .form { display:none; flex-direction:column; }
+  .form.active { display:flex; }
+  .form input { margin-bottom:15px; padding:10px; border-radius:6px; border:1px solid #ccc; font-size:14px; }
+  .form button { padding:12px; border:none; border-radius:6px; background:black; color:white; font-size:16px; cursor:pointer; transition:0.3s; }
+  .form button:hover { background:#333; }
+  .info button { padding:12px; border:none; border-radius:6px; background:black; color:white; font-size:16px; cursor:pointer; transition:0.3s; margin-top:20px; }
+  .info button:hover { background:#333; }
+  #profileAvatar { width:90px; height:90px; border-radius:50%; border:3px solid #222; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:600; margin:15px auto; color:#222; }
+  .profile-table { width:100%; margin-top:20px; border-collapse:collapse; font-size:14px; }
+  .profile-table td { padding:10px 8px; border-bottom:1px solid #e0e0e0; }
+  .profile-table tr:last-child td { border-bottom:none; }
+  .profile-table td:first-child { text-align:left; font-weight:600; color:#555; width:35%; }
+  .profile-table td:last-child { text-align:right; color:#111; word-break:break-word; }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+  <div class="icon" onclick="toggleMenu()">☰</div>
+  <div class="logo"><a href="index.html"><img src="logo.png"></a></div>
+  <div class="icon"><a href="profile.html"><img src="profile.png"></a></div>
+</div>
+<div class="dropdown" id="menu">
+  <a href="index.html">Hem</a>
+  <a href="activities.html">Hitta & Boka</a>
+  <a href="index.html#about">Om oss</a>
+  <a href="profile.html">Min Profil</a>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Konto</h1>
+  </div>
+</section>
+
+<!-- Profilsektion -->
+<div class="profile-section">
+
+  <!-- Auth / Register / Login -->
+  <div class="container" id="authContainer">
+    <div>
+      <h1 style="margin-top:-5px;">Äta Tillsammans</h1>
+      <p>Skapa konto / Logga in</p>
+      <hr style="margin:25px 0px;width:20%;">
+    </div>
+    <div class="tabs">
+      <button id="loginTab" class="active" onclick="showForm('login')">Logga in</button>
+      <button id="registerTab" onclick="showForm('register')">Skapa konto</button>
+    </div>
+    <form id="loginForm" class="form active">
+      <input type="email" id="loginEmail" placeholder="E-post" required>
+      <input type="password" id="loginPassword" placeholder="Lösenord" required>
+      <button type="submit">Logga in</button>
+    </form>
+    <form id="registerForm" class="form">
+      <input type="text" id="firstName" placeholder="Förnamn" required oninput="this.value=this.value.toUpperCase()">
+      <input type="text" id="lastName" placeholder="Efternamn" required oninput="this.value=this.value.toUpperCase()">
+      <input type="text" id="age" placeholder="Ålder" required>
+      <input type="text" id="city" placeholder="Stad/Ort" required>
+      <input type="email" id="registerEmail" placeholder="E-post" required>
+      <input type="password" id="registerPassword" placeholder="Lösenord" required>
+      <button type="submit">Skapa konto</button>
+    </form>
+  </div>
+
+  <!-- Profilkort -->
+  <div class="container" id="profileCard" style="display:none;">
+    <div id="profileAvatar">AA</div>
+    <table class="profile-table">
+      <tr><td><strong>Namn:</strong></td><td id="profileName"></td></tr>
+      <tr><td><strong>Ålder:</strong></td><td id="profileAge"></td></tr>
+      <tr><td><strong>Mail:</strong></td><td id="profileEmail"></td></tr>
+      <tr><td><strong>Stad:</strong></td><td id="profileCity"></td></tr>
+    </table>
+    <div class="info">
+      <button onclick="logout()">Logga ut</button>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>&copy; Äta Tillsammans</p>
+</footer>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  // 1️⃣ Init Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqYwtoHMQ19zLYQN47vXskCmrrbkDFLgs",
+    authDomain: "atatillsammans-7b612.firebaseapp.com",
+    projectId: "atatillsammans-7b612",
+    storageBucket: "atatillsammans-7b612.appspot.com",
+    messagingSenderId: "462939649454",
+    appId: "1:462939649454:web:474a3e72987ed25e7a443f",
+    measurementId: "G-QMC3ZL711E"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  const authContainer = document.getElementById("authContainer");
+  const profileCard = document.getElementById("profileCard");
+
+  // 2️⃣ Visa rätt form
+  function showForm(type){
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const loginTab = document.getElementById("loginTab");
+    const registerTab = document.getElementById("registerTab");
+
+    if(type==='login'){
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+      loginTab.classList.add('active');
+      registerTab.classList.remove('active');
+    } else {
+      loginForm.classList.remove('active');
+      registerForm.classList.add('active');
+      loginTab.classList.remove('active');
+      registerTab.classList.add('active');
+    }
+  }
+
+  // 3️⃣ Registrera användare
+  document.getElementById("registerForm").addEventListener("submit", e=>{
+    e.preventDefault();
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+    const firstName = document.getElementById("firstName").value;
+    const lastName = document.getElementById("lastName").value;
+    const age = document.getElementById("age").value;
+    const city = document.getElementById("city").value;
+
+    auth.createUserWithEmailAndPassword(email,password)
+      .then(userCredential=>{
+        const uid = userCredential.user.uid;
+        db.ref('users/'+uid).set({firstName,lastName,age,city,email})
+          .then(()=>{ alert("Konto skapat!"); });
+      })
+      .catch(error=>alert(error.message));
+  });
+
+  // 4️⃣ Logga in
+  document.getElementById("loginForm").addEventListener("submit", e=>{
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    auth.signInWithEmailAndPassword(email,password)
+      .catch(error=>alert(error.message));
+  });
+
+  // 5️⃣ Logout
+  function logout(){ auth.signOut(); }
+
+  // 6️⃣ Hämta profil när inloggad
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      db.ref('users/'+user.uid).get()
+        .then(snapshot=>{
+          const data = snapshot.val();
+          if(data){
+            document.getElementById("profileName").textContent = data.firstName+' '+data.lastName;
+            document.getElementById("profileAge").textContent = data.age;
+            document.getElementById("profileEmail").textContent = data.email;
+            document.getElementById("profileCity").textContent = data.city;
+            const initials = data.firstName[0]+data.lastName[0];
+            document.getElementById("profileAvatar").textContent = initials.toUpperCase();
+            authContainer.style.display='none';
+            profileCard.style.display='block';
+          }
+        })
+        .catch(err=>alert("Fel vid hämtning av profil: "+err.message));
+    } else {
+      authContainer.style.display='block';
+      profileCard.style.display='none';
+    }
+  });
+
+  // 7️⃣ Toggle navbar
+  function toggleMenu(){
+    const menu = document.getElementById("menu");
+    menu.style.display = menu.style.display==='block' ? 'none' : 'block';
+  }
+</script>
+</body>
+</html>

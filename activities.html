@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Hitta & Boka</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
+
+<style>
+body { font-family: 'Poppins', sans-serif; background-color: #fafafa; margin:0; color:#333; }
+.group-section { max-width:1200px; margin:50px auto; padding:20px; }
+.group-section h2 { text-align:center; margin-bottom:25px; font-weight:600; color:#333; }
+.group-layout { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+.create-group { background:transparent; padding:25px; margin-bottom:35px; box-shadow:0 4px 12px rgba(0,0,0,0.05); display:flex; flex-direction:column; align-items:center; }
+.create-group form { width:100%; max-width:500px; display:flex; flex-direction:column; gap:12px; }
+.create-group input, .create-group button { padding:12px; border:2px solid #333; }
+.group-list { padding:25px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+.search-input { width:100%; padding:12px; border:2px solid #333; margin-bottom:20px; }
+.group-card { border:2px solid #333; padding:20px; margin-bottom:15px; }
+.participants { display:flex; gap:8px; margin-top:10px; }
+.avatar { width:34px; height:34px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; font-size:13px; }
+.join-btn { padding:10px; border:2px solid black; background:transparent; cursor:pointer; }
+.joined { background:black; color:white; }
+.leave-btn { padding:10px; border:2px solid red; background:transparent; color:red; cursor:pointer; }
+.chat-btn { padding:10px; border:2px solid green; background:transparent; color:green; cursor:pointer; }
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="icon" onclick="toggleMenu()">☰</div>
+  <div class="logo"><a href="index.html"><img src="logo.png"></a></div>
+  <div class="icon"><a href="profile.html"><img src="profile.png"></a></div>
+</div>
+
+<div class="dropdown" id="menu">
+  <a href="index.html">Hem</a>
+  <a href="activities.html">Hitta & Boka</a>
+  <a href="index.html#about">Om oss</a>
+  <a href="profile.html">Min Profil</a>
+</div>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Hitta & Boka</h1>
+  </div>
+</section>
+
+<section class="group-section">
+<h2>Skapa eller gå med i träffar</h2>
+<div class="group-layout">
+
+<!-- CREATE -->
+<div class="create-group">
+<h3>Skapa en ny träff</h3>
+<form id="createGroupForm">
+<input id="groupName" placeholder="Träffens namn" required>
+<input id="groupCity" placeholder="Stad" required>
+<input id="groupAdress" placeholder="Adress" required>
+<input id="groupTime" type="datetime-local" required>
+<input id="groupLimit" type="number" placeholder="Platser" min="1" required>
+<button>Skapa träff</button>
+</form>
+</div>
+
+<!-- LISTA -->
+<div class="group-list">
+<h3>Alla träffar</h3>
+<input id="searchInput" class="search-input" placeholder="Sök träff...">
+<div id="groupsContainer"></div>
+</div>
+
+</div>
+</section>
+
+<footer><p>&copy; Äta Tillsammans</p></footer>
+
+<script>
+function toggleMenu() {
+  const menu = document.getElementById("menu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+// Firebase init
+const firebaseConfig = {
+  apiKey: "AIzaSyCqYwtoHMQ19zLYQN47vXskCmrrbkDFLgs",
+  authDomain: "atatillsammans-7b612.firebaseapp.com",
+  projectId: "atatillsammans-7b612",
+  storageBucket: "atatillsammans-7b612.firebasestorage.app",
+  messagingSenderId: "462939649454",
+  appId: "1:462939649454:web:474a3e72987ed25e7a443f",
+  measurementId: "G-QMC3ZL711E"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
+// Anonym login
+auth.signInAnonymously().then(()=>{
+  const user = auth.currentUser;
+  window.currentUser = { uid: user.uid, name: "Gäst" + user.uid.slice(-4) };
+  renderGroups();
+});
+
+// Rendera grupper live
+function renderGroups() {
+  const container = document.getElementById("groupsContainer");
+  const groupsRef = db.ref("groups");
+
+  groupsRef.on("value", snapshot=>{
+    const data = snapshot.val() || {};
+    container.innerHTML = "";
+
+    Object.keys(data).forEach(id=>{
+      const group = data[id];
+      const joined = group.members && group.members[window.currentUser.uid];
+
+      const card = document.createElement("div");
+      card.className = "group-card";
+      card.setAttribute("data-name", group.name.toLowerCase());
+
+      card.innerHTML = `
+        <h3>${group.name}</h3>
+        <p>${group.city} • ${new Date(group.time).toLocaleString("sv-SE")}</p>
+        <p>${group.members ? Object.keys(group.members).length : 0} / ${group.limit} platser</p>
+
+        <div class="participants">
+          ${group.members ? Object.values(group.members).map(m=>`<div class="avatar">${m[0]}</div>`).join("") : ""}
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="join-btn ${joined ? "joined" : ""}">
+            ${joined ? "Du är med" : "Gå med"}
+          </button>
+          ${joined ? `<button class="chat-btn">Öppna chatt</button>
+                      <button class="leave-btn">Lämna</button>` : ""}
+        </div>
+      `;
+
+      // Join
+      card.querySelector(".join-btn").onclick = ()=>{
+        if(!joined && (!group.members || Object.keys(group.members).length < group.limit)){
+          db.ref(`groups/${id}/members/${window.currentUser.uid}`).set(window.currentUser.name);
+        } else if(group.members && Object.keys(group.members).length >= group.limit){
+          alert("Träffen är full!");
+        }
+      };
+
+      // Chat
+      const chatBtn = card.querySelector(".chat-btn");
+      if(chatBtn) chatBtn.onclick = ()=> window.location.href = `group.html?id=${id}`;
+
+      // Leave
+      const leaveBtn = card.querySelector(".leave-btn");
+      if(leaveBtn) leaveBtn.onclick = ()=> db.ref(`groups/${id}/members/${window.currentUser.uid}`).remove();
+
+      container.appendChild(card);
+    });
+  });
+}
+
+// Skapa ny träff
+document.getElementById("createGroupForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const name = groupName.value;
+  const city = groupCity.value;
+  const adress = groupAdress.value;
+  const time = groupTime.value;
+  const limit = Number(groupLimit.value);
+
+  db.ref("groups").push({
+    name, city, adress, time, limit, members: {}
+  });
+
+  e.target.reset();
+});
+
+// Sök
+document.getElementById("searchInput").addEventListener("input", e=>{
+  const search = e.target.value.toLowerCase();
+  document.querySelectorAll(".group-card").forEach(card=>{
+    card.style.display = card.getAttribute("data-name").includes(search) ? "block" : "none";
+  });
+});
+</script>
+
+</body>
+</html>

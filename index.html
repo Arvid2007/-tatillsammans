@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Äta Tillsammans</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
+</head>
+
+<style>
+    .section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+    padding: 20px;
+    margin: 0;
+    padding: 0;
+    }
+
+    .section:nth-child(even) {
+    background: #f9f9f9;
+    }
+
+    .section-content {
+    flex: 1;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    }
+
+    .section-content h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    }
+
+    .section-content p {
+    font-size: 20px;
+    line-height: 1.6;
+    }
+
+    .section-image {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+
+    .section-image img {
+    max-width: 40%;
+    max-height: 40%;
+    border-radius: 12px;
+    object-fit: cover;
+    }
+
+
+  </style>
+<body>
+  
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="icon" onclick="toggleMenu()">☰</div>
+    <div class="logo"><a href="index.html"><img src="logo.png" alt="Logo"></a></div>
+    <div class="icon"><a href="profile.html"><img src="profile.png" alt="Profil"></a></div>
+  </div>
+  <div class="dropdown" id="menu">
+    <a href="index.html">Hem</a>
+    <a href="activities.html">Hitta & Boka</a>
+    <a href="index.html#about">Om oss</a>
+    <a href="profile.html">Min Profil</a>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Äta Tillsammans</h1>
+      <p>Ett enklare sätt för äldre att äta tillsammans och hitta nya vänner!</p>
+      <a href="activities.html"><button>Kom igång</button></a>
+    </div>
+  </section>  
+
+  <section class="section" id="about">
+    <div class="section-content">
+      <h2>Vår Idé</h2>
+      <p>
+        Vår idé är att appen “Äta tillsammans”, som syftar till att motverka ensamhet bland äldre samtidigt som den bidrar till att minska energiförbrukningen eftersom alla inte behöver använda sina egna kök. Appen fungerar som en social plattform där användare kan skapa och delta i små evenemang eller grupper baserade på gemensamma intressen och matpreferenser.
+      </p>
+    </div>
+    <div class="section-image">
+      <img src="ide.png" alt="Ide">
+    </div>
+  </section>
+  
+  <section class="section">
+    <div class="section-image">
+      <img src="malgrupp.png" alt="Målgrupp">
+    </div>
+    <div class="section-content">
+      <h2>Målgrupp</h2>
+      <p>
+        Målgruppen för “Äta tillsammans” är främst äldre personer som vill träffa nya människor, umgås och delta i sociala aktiviteter.
+      </p>
+    </div>
+  </section>
+  
+  <footer>
+    <p>&copy; Äta Tillsammans</p>
+  </footer>
+  
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menu");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registrerad!'))
+        .catch(err => console.log('Service Worker misslyckades', err));
+    }
+  </script>
+
+</body>
+</html>
