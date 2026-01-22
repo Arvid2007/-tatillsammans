@@ -5,7 +5,6 @@
 <title>Träff</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
-
 <style>
 body { font-family: 'Poppins', sans-serif; background-color: #fafafa; margin: 0; color: #333; }
 .navbar { display: flex; align-items: center; padding: 10px 20px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -27,15 +26,20 @@ body { font-family: 'Poppins', sans-serif; background-color: #fafafa; margin: 0;
 .chat-box button { padding: 10px 15px; border: 2px solid #333; background: transparent; cursor: pointer; }
 .leave-btn { padding: 10px 15px; border: 2px solid red; background: transparent; color: red; cursor: pointer; margin-top: 10px; }
 </style>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 </head>
 <body>
 
+<script>
+// global app state
+const AppState = {
+  userId: -1,
+}
+
+// call API
+const serverAddress = "http://localhost:3123";
+</script>
+
+<!-- NAVBAR -->
 <div class="navbar">
   <div class="icon" onclick="toggleMenu()">☰</div>
   <div class="logo"><a href="index.html"><img src="logo.png"></a></div>
@@ -73,111 +77,103 @@ body { font-family: 'Poppins', sans-serif; background-color: #fafafa; margin: 0;
   <button class="leave-btn" id="leaveBtn">Lämna träff</button>
 </section>
 
+<script src="api-server.js"></script>
 <script>
 function toggleMenu() {
   const menu = document.getElementById("menu");
   menu.style.display = menu.style.display === "block" ? "none" : "block";
 }
 
-// URL-param
+// --- Init ---
 const urlParams = new URLSearchParams(window.location.search);
 const groupId = urlParams.get("id");
 
-// Firebase init
-const firebaseConfig = {
-  apiKey: "AIzaSyCqYwtoHMQ19zLYQN47vXskCmrrbkDFLgs",
-  authDomain: "atatillsammans-7b612.firebaseapp.com",
-  projectId: "atatillsammans-7b612",
-  storageBucket: "atatillsammans-7b612.firebasestorage.app",
-  messagingSenderId: "462939649454",
-  appId: "1:462939649454:web:474a3e72987ed25e7a443f",
-  measurementId: "G-QMC3ZL711E"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
+let currentUser = null;
+let currentGroup = { name: "Träff", city: "Stad", time: Date.now(), members: [], messages: [] };
 
-// Anonym login
-auth.signInAnonymously().then(()=>{
-  const user = auth.currentUser;
-  window.currentUser = { uid: user.uid, name: "Gäst" + user.uid.slice(-4) };
-  initGroup();
+// Hämta aktuell användare
+async function initUser() {
+  try {
+    currentUser = await getProfile(); // från api.js
+    if(!currentUser) alert("Du måste vara inloggad för att delta i träffen!");
+  } catch(e) { console.error(e); }
+}
+
+// Hämta gruppdata
+async function fetchGroup() {
+  // Placeholder – ersätt med backend när det är klart
+  // Exempel: currentGroup = await getGroup(groupId);
+  return currentGroup;
+}
+
+// Rendera grupp
+function renderGroup() {
+  const participantsContainer = document.getElementById("participantsContainer");
+  participantsContainer.innerHTML = "";
+  currentGroup.members.forEach(member => {
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = member.name[0];
+    avatar.title = member.name;
+    participantsContainer.appendChild(avatar);
+  });
+
+  const messagesContainer = document.getElementById("messagesContainer");
+  messagesContainer.innerHTML = "";
+  currentGroup.messages.forEach(msg => {
+    const div = document.createElement("div");
+    div.className = "message";
+    div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
+    messagesContainer.appendChild(div);
+  });
+
+  document.getElementById("groupName").textContent = currentGroup.name;
+  document.getElementById("groupInfo").textContent = `${currentGroup.city} • ${new Date(currentGroup.time).toLocaleString("sv-SE")}`;
+}
+
+// Skicka meddelande
+document.getElementById("sendBtn").addEventListener("click", () => {
+  const text = document.getElementById("chatInput").value.trim();
+  if(!text || !currentUser) return;
+  currentGroup.messages.push({ user: currentUser.firstName, text });
+  document.getElementById("chatInput").value = "";
+  renderGroup();
 });
 
-function initGroup() {
-  const groupRef = db.ref("groups/" + groupId);
-  const participantsContainer = document.getElementById("participantsContainer");
-  const messagesContainer = document.getElementById("messagesContainer");
-  const groupNameEl = document.getElementById("groupName");
-  const groupInfoEl = document.getElementById("groupInfo");
-  const chatInput = document.getElementById("chatInput");
-  const sendBtn = document.getElementById("sendBtn");
-  const leaveBtn = document.getElementById("leaveBtn");
+// Enter för att skicka
+document.getElementById("chatInput").addEventListener("keydown", e => {
+  if(e.key === "Enter") document.getElementById("sendBtn").click();
+});
 
-  // Lägg till användaren som medlem om inte redan
-  groupRef.child("members/" + window.currentUser.uid).set(window.currentUser.name);
+// Lämna träff
+document.getElementById("leaveBtn").addEventListener("click", () => {
+  if(!currentUser) return;
+  if(confirm("Är du säker på att du vill lämna träffen?")) {
+    currentGroup.members = currentGroup.members.filter(m => m.id !== currentUser.id);
+    renderGroup();
+    window.location.href = "activities.html";
+  }
+});
 
-  // Lyssna på gruppdata
-  groupRef.on("value", snapshot=>{
-    const group = snapshot.val();
-    if(!group){
-      alert("Träffen finns inte längre!");
-      window.location.href = "activities.html";
-      return;
-    }
-
-    groupNameEl.textContent = group.name;
-    groupInfoEl.textContent = `${group.city} • ${new Date(group.time).toLocaleString("sv-SE")}`;
-
-    // Deltagare
-    participantsContainer.innerHTML = "";
-    const members = group.members || {};
-    Object.values(members).forEach(name=>{
-      const avatar = document.createElement("div");
-      avatar.className = "avatar";
-      avatar.textContent = name[0];
-      avatar.title = name;
-      participantsContainer.appendChild(avatar);
-    });
-
-    // Chatt
-    messagesContainer.innerHTML = "";
-    const messages = group.messages || [];
-    messages.forEach(msg=>{
-      const div = document.createElement("div");
-      div.className = "message";
-      div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
-      messagesContainer.appendChild(div);
-    });
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  });
-
-  // Skicka meddelande
-  sendBtn.addEventListener("click", ()=>{
-    const text = chatInput.value.trim();
-    if(!text) return;
-    const msgRef = groupRef.child("messages");
-    msgRef.once("value").then(snapshot=>{
-      const msgs = snapshot.val() || [];
-      msgs.push({ user: window.currentUser.name, text });
-      msgRef.set(msgs);
-      chatInput.value = "";
-    });
-  });
-
-  // Enter för att skicka
-  chatInput.addEventListener("keydown", e=>{
-    if(e.key === "Enter") sendBtn.click();
-  });
-
-  // Lämna träff
-  leaveBtn.addEventListener("click", ()=>{
-    if(!confirm("Är du säker på att du vill lämna träffen?")) return;
-    groupRef.child("members/" + window.currentUser.uid).remove()
-      .then(()=> window.location.href="activities.html");
-  });
-}
+// Init
+(async () => {
+  await initUser();
+  currentGroup = await fetchGroup();
+  renderGroup();
+})();
 </script>
 
+<footer style="background:#222; color:#fff; text-align:center; padding:20px; font-size:14px;">
+  <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
+  <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
+  <p>
+    <a href="privacy.html" style="color:#fff; text-decoration:underline;">Integritetspolicy</a> | 
+    <a href="terms.html" style="color:#fff; text-decoration:underline;">Användarvillkor</a>
+  </p>
+  <p>Följ oss: 
+    <a href="#" style="color:#fff;">Facebook</a> | 
+    <a href="#" style="color:#fff;">Instagram</a>
+  </p>
+</footer>
 </body>
 </html>

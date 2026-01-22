@@ -5,14 +5,28 @@ body {
   }
 
   .navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: black;
-    color: whitesmoke;
-    padding: 0px 15px;
-    position: relative;
-  }
+  display: flex;
+  align-items: center;      /* centrerar loggan vertikalt */
+  justify-content: space-between;
+  background: black;
+  color: whitesmoke;
+  padding: 10px 20px;       /* mer utrymme ovan och under loggan */
+  height: 60px;             /* fast höjd */
+  box-sizing: border-box;
+  position: relative;
+}
+
+.navbar .logo img {
+  height: 50px;             /* gör loggan lite större */
+  width: auto;              /* behåller proportioner */
+}
+
+.navbar .icon img {
+  height: 35px;
+  width: 35px;
+  cursor: pointer;
+}
+
 
   .icon {
     font-size: 24px;

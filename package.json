@@ -1,17 +1,23 @@
 {
-  "name": "appen",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron ."
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.11"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "scripts": {
+    "server": "nodemon api-server.js"
+  },
   "devDependencies": {
-    "electron": "^39.2.7",
-    "electron-packager": "^17.1.2"
+    "prettier": "^3.6.2"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "semi": false,
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "trailingComma": "none",
+    "endOfLine": "crlf"
   }
 }
