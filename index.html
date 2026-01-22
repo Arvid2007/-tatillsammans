@@ -58,7 +58,21 @@
   </style>
 <body>
   
+<script>
 
+// global app state
+const AppState = {
+  userId: -1,
+}
+
+// call API
+const serverAddress = "http://localhost:3123";
+
+
+
+
+
+</script>
   <!-- Navbar -->
   <div class="navbar">
     <div class="icon" onclick="toggleMenu()">☰</div>
@@ -100,14 +114,12 @@
     <div class="section-content">
       <h2>Målgrupp</h2>
       <p>
-        Målgruppen för “Äta tillsammans” är främst äldre personer som vill träffa nya människor, umgås och delta i sociala aktiviteter.
+Målgruppen för “Äta tillsammans” är främst äldre personer som vill träffa nya människor, umgås och delta i sociala aktiviteter. Appen riktar sig till dem som vill bryta vardagsrutiner, hitta nya vänner och engagera sig i trevliga träffar, allt via en enkel och användarvänlig plattform.
       </p>
     </div>
   </section>
   
-  <footer>
-    <p>&copy; Äta Tillsammans</p>
-  </footer>
+  
   
   <script>
     function toggleMenu() {
@@ -123,6 +135,18 @@
         .catch(err => console.log('Service Worker misslyckades', err));
     }
   </script>
-
+<footer style="background:#222; color:#fff; text-align:center; padding:20px; font-size:14px;">
+  <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
+  <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
+  <p>
+  
+    <a href="privacy.html" style="color:#fff; text-decoration:underline;">Integritetspolicy</a> | 
+    <a href="terms.html" style="color:#fff; text-decoration:underline;">Användarvillkor</a>
+  </p>
+  <p>Följ oss: 
+    <a href="#" style="color:#fff;">Facebook</a> | 
+    <a href="#" style="color:#fff;">Instagram</a>
+  </p>
+</footer>
 </body>
 </html>
