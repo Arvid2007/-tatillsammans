@@ -1,214 +1,272 @@
-<script type="module" src="api-server.js"></script>
 <!DOCTYPE html>
 <html lang="sv">
 <head>
 <meta charset="UTF-8">
 <title>Äta Tillsammans - Profil</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-<link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
-
 <style>
-body { font-family: 'Poppins', sans-serif; background:#fafafa; margin:0; color:#333; }
-.navbar { display:flex; align-items:center; justify-content:space-between; background:black; color:white; padding:10px 20px; position:sticky; top:0; z-index:1000; }
-.navbar .logo img { height:50px; }
-.navbar .icon { cursor:pointer; font-size:24px; display:flex; align-items:center; }
-.navbar .icon img { height:35px; width:35px; margin-left:15px; }
-.dropdown { display:none; position:absolute; top:60px; right:15px; background:black; width:140px; border-radius:6px; z-index:1001; }
-.dropdown a { display:block; padding:12px; color:white; text-decoration:none; }
-.dropdown a:hover { background:#333; }
-.hero { height:40vh; background:url('hero.jpg') center/cover no-repeat; position:relative; color:white; }
-.hero-content { position:absolute; bottom:20px; left:40px; }
-.hero h1 { font-size:48px; margin:0; }
-.profile-section { display:flex; justify-content:center; padding:50px 20px; gap:40px; flex-wrap:wrap; }
-.container { background:white; padding:40px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.1); max-width:350px; width:100%; text-align:center; }
-.tabs { display:flex; margin-bottom:20px; }
-.tabs button { flex:1; padding:10px; border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; }
-.tabs button.active { border-bottom:2px solid black; font-weight:600; }
-.form { display:none; flex-direction:column; }
-.form.active { display:flex; }
-.form input { margin-bottom:15px; padding:10px; border-radius:6px; border:1px solid #ccc; }
-.form button { padding:12px; border:none; border-radius:6px; background:black; color:white; cursor:pointer; }
-#profileAvatar { width:90px; height:90px; border-radius:50%; border:3px solid #222; display:flex; align-items:center; justify-content:center; font-size:32px; margin:15px auto; }
-.profile-table { width:100%; border-collapse:collapse; }
-.profile-table td { padding:10px; border-bottom:1px solid #eee; }
-.profile-table td:first-child { text-align:left; font-weight:600; }
-.profile-table td:last-child { text-align:right; }
-.info button { margin-top:20px; padding:12px; border:none; border-radius:6px; background:black; color:white; cursor:pointer; }
+  /* --- Globala Stilar --- */
+  body { font-family: 'Poppins', sans-serif; background:#fafafa; margin:0; color:#333; }
+  
+  /* --- Navbar --- */
+  .navbar { display:flex; align-items:center; padding:10px 20px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  .navbar .logo { font-weight: 600; font-size: 18px; margin-left: 10px; }
+  .navbar-right { margin-left: auto; display: flex; align-items: center; gap: 15px; }
+  #navUser { font-size: 14px; color: #555; font-weight: 600; } /* Email in top right */
+  .icon { cursor:pointer; font-size:24px; }
+  
+  /* --- Dropdown Menu --- */
+  .dropdown { display:none; flex-direction:column; position:absolute; top:60px; right:20px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.1); z-index:1000; }
+  .dropdown a { padding:10px 20px; text-decoration:none; color:#333; display:block; }
+
+  /* --- Huvudcontainer --- */
+  .profile-section { display:flex; justify-content:center; align-items:center; margin:50px 0; }
+  .container { background:white; padding:40px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); width:350px; text-align:center; }
+  
+  /* --- Flikar (Tabs) --- */
+  .tabs { display:flex; justify-content:space-around; margin-bottom:20px; }
+  .tabs button { flex:1; padding:10px; background:transparent; border:none; border-bottom:2px solid transparent; font-size:16px; cursor:pointer; transition:0.3s; }
+  .tabs button.active { border-bottom:2px solid black; font-weight:600; color:black; }
+  
+  /* --- Formulär --- */
+  .form { display:none; flex-direction:column; }
+  .form.active { display:flex; }
+  .form input { margin-bottom:15px; padding:10px; border-radius:6px; border:1px solid #ccc; font-size:14px; }
+  .form button { padding:12px; border:none; border-radius:6px; background:black; color:white; font-size:16px; cursor:pointer; transition:0.3s; }
+  .form button:hover { background:#333; }
+  
+  /* --- Meddelanden --- */
+  .message { margin-top:10px; font-size:13px; display:none; }
+  .error { color: #d9534f; }
+  
+  /* --- Profilkort --- */
+  #profileAvatar { width:90px; height:90px; border-radius:50%; border:3px solid #222; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:600; margin:15px auto; color:#222; }
+  .profile-table { width:100%; margin-top:20px; border-collapse:collapse; font-size:14px; }
+  .profile-table td { padding:10px 8px; border-bottom:1px solid #e0e0e0; }
+  .profile-table tr:last-child td { border-bottom:none; }
+  .profile-table td:first-child { text-align:left; font-weight:600; color:#555; width:35%; }
+  .profile-table td:last-child { text-align:right; color:#111; word-break:break-word; }
+  .info button { padding:12px; border:none; border-radius:6px; background:black; color:white; font-size:16px; cursor:pointer; margin-top:20px; width:100%; }
 </style>
 </head>
-
 <body>
-  
-<script>
-// global app state
-const AppState = {
-  userId: -1,
-}
-
-// call API
-const serverAddress = "http://localhost:3123";
-</script>
 
 <div class="navbar">
-  <div class="icon" id="menuToggle">☰</div>
-  <div class="logo"><a href="index.html"><img src="logo.png"></a></div>
-  <div class="icon"><a href="profile.html"><img src="profile.png"></a></div>
+  <div class="logo">Äta Tillsammans</div>
+  <div class="navbar-right">
+    <div id="navUser"></div>
+    <div class="icon" onclick="toggleMenu()">☰</div>
+  </div>
 </div>
 
 <div class="dropdown" id="menu">
   <a href="index.html">Hem</a>
   <a href="activities.html">Hitta & Boka</a>
-  <a href="index.html#about">Om oss</a>
   <a href="profile.html">Min Profil</a>
 </div>
 
-<section class="hero">
-  <div class="hero-content">
-    <h1>Konto</h1>
-  </div>
-</section>
-
 <div class="profile-section">
 
-  <!-- LOGIN / REGISTER -->
   <div class="container" id="authContainer">
-    <h1>Äta Tillsammans</h1>
-    <p>Skapa konto / Logga in</p>
+    <div>
+      <h1 style="margin-top:-5px;">Välkommen</h1>
+      <p>Skapa konto / Logga in</p>
+      <hr style="margin:25px auto;width:20%;">
+    </div>
 
     <div class="tabs">
-      <button id="loginTab" class="active">Logga in</button>
-      <button id="registerTab">Skapa konto</button>
+      <button id="loginTab" class="active" onclick="switchTab('login')">Logga in</button>
+      <button id="registerTab" onclick="switchTab('register')">Skapa konto</button>
     </div>
 
     <form id="loginForm" class="form active">
-      <input id="loginEmail" type="email" placeholder="E-post" required>
-      <input id="loginPassword" type="password" placeholder="Lösenord" required>
+      <input type="email" name="username" placeholder="E-post" required>
+      <input type="password" name="password" placeholder="Lösenord" required>
       <button type="submit">Logga in</button>
+      <div class="message error" id="loginMsg"></div>
     </form>
 
     <form id="registerForm" class="form">
-      <input id="firstName" placeholder="Förnamn" required>
-      <input id="lastName" placeholder="Efternamn" required>
-      <input id="age" placeholder="Ålder" required>
-      <input id="city" placeholder="Stad" required>
-      <input id="registerEmail" type="email" placeholder="E-post" required>
-      <input id="registerPassword" type="password" placeholder="Lösenord" required>
+      <input type="text" name="name" id="regName" placeholder="Namn (För- och efternamn)" required>
+      <input type="number" name="age" id="regAge" placeholder="Ålder" required>
+      <input type="email" name="username" id="regEmail" placeholder="E-post (Användarnamn)" required>
+      <input type="password" name="password" id="regPassword" placeholder="Lösenord" required>
       <button type="submit">Skapa konto</button>
+      <div class="message error" id="regMsg"></div>
     </form>
   </div>
 
-  <!-- PROFILE -->
   <div class="container" id="profileCard" style="display:none;">
-    <div id="profileAvatar"></div>
+    <div id="profileAvatar">AA</div>
     <table class="profile-table">
-      <tr><td>Namn</td><td id="profileName"></td></tr>
-      <tr><td>Ålder</td><td id="profileAge"></td></tr>
-      <tr><td>Email</td><td id="profileEmail"></td></tr>
-      <tr><td>Stad</td><td id="profileCity"></td></tr>
+      <tr><td><strong>Namn:</strong></td><td id="profileName"></td></tr>
+      <tr><td><strong>Ålder:</strong></td><td id="profileAge"></td></tr>
+      <tr><td><strong>Användarnamn:</strong></td><td id="profileUsername"></td></tr>
     </table>
     <div class="info">
-      <button id="logoutBtn">Logga ut</button>
+      <button onclick="logout()">Logga ut</button>
     </div>
   </div>
 
 </div>
 
-<script src="api-server.js"></script>
 <script>
-  // --- Navbar dropdown ---
-  const menuToggle = document.getElementById("menuToggle");
-  const menu = document.getElementById("menu");
-  menuToggle.addEventListener("click", () => {
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-  });
+  // ==========================================
+  // KONFIGURATION: Din API URL
+  // ==========================================
+  const API_URL = 'http://localhost:3123'; 
 
-  // --- Tabs ---
-  const loginTab = document.getElementById("loginTab");
-  const registerTab = document.getElementById("registerTab");
-  const loginForm = document.getElementById("loginForm");
-  const registerForm = document.getElementById("registerForm");
-
-  function showForm(type) {
-    loginForm.classList.toggle("active", type === "login");
-    registerForm.classList.toggle("active", type === "register");
-    loginTab.classList.toggle("active", type === "login");
-    registerTab.classList.toggle("active", type === "register");
-  }
-
-  loginTab.addEventListener("click", () => showForm("login"));
-  registerTab.addEventListener("click", () => showForm("register"));
-
-  // --- Elements ---
+  // --- UI Referenser ---
   const authContainer = document.getElementById("authContainer");
   const profileCard = document.getElementById("profileCard");
-  const loginEmail = document.getElementById("loginEmail");
-  const loginPassword = document.getElementById("loginPassword");
-  const firstName = document.getElementById("firstName");
-  const lastName = document.getElementById("lastName");
-  const age = document.getElementById("age");
-  const city = document.getElementById("city");
-  const registerEmail = document.getElementById("registerEmail");
-  const registerPassword = document.getElementById("registerPassword");
-  const profileName = document.getElementById("profileName");
-  const profileAge = document.getElementById("profileAge");
-  const profileEmail = document.getElementById("profileEmail");
-  const profileCity = document.getElementById("profileCity");
-  const profileAvatar = document.getElementById("profileAvatar");
-  const logoutBtn = document.getElementById("logoutBtn");
+  const navUserDiv = document.getElementById("navUser"); // Texten i hörnet
 
-  // --- Register ---
-  registerForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    try {
-      await register({
-        firstName:firstName.value,
-        lastName:lastName.value,
-        age:age.value,
-        city:city.value,
-        email:registerEmail.value,
-        password:registerPassword.value
-      });
-      alert("Konto skapat!");
-      showForm("login");
-    } catch(err) { alert(err.message); }
+  // --- 1. Kontrollera om användaren redan är inloggad ---
+  window.addEventListener('DOMContentLoaded', () => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        handleLoginSuccess(user);
+      } catch (e) { localStorage.removeItem('user'); }
+    }
   });
 
- 
-
-  function showProfile(user) {
-    profileName.textContent = user.firstName + " " + user.lastName;
-    profileAge.textContent = user.age;
-    profileEmail.textContent = user.email;
-    profileCity.textContent = user.city;
-    profileAvatar.textContent = (user.firstName[0]||'')+(user.lastName[0]||'');
-    authContainer.style.display="none";
-    profileCard.style.display="block";
+  // --- 2. Meny & Flikar ---
+  function toggleMenu(){
+    const menu = document.getElementById("menu");
+    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
   }
 
-  // --- Logout ---
-  logoutBtn.addEventListener("click", async () => {
-    await window.logout();
-    localStorage.removeItem("userId");
-    authContainer.style.display="block";
-    profileCard.style.display="none";
-  });
+  function switchTab(type){
+    document.getElementById('regMsg').style.display = 'none';
+    document.getElementById('loginMsg').style.display = 'none';
+    
+    if(type === 'login'){
+      document.getElementById("loginForm").classList.add('active');
+      document.getElementById("registerForm").classList.remove('active');
+      document.getElementById("loginTab").classList.add('active');
+      document.getElementById("registerTab").classList.remove('active');
+    } else {
+      document.getElementById("loginForm").classList.remove('active');
+      document.getElementById("registerForm").classList.add('active');
+      document.getElementById("loginTab").classList.remove('active');
+      document.getElementById("registerTab").classList.add('active');
+    }
+  }
 
-  // --- Auto-login ---
-  window.addEventListener("load", async () => {
+  // --- 3. Registrering (Kopplat till din API-kod för /users) ---
+  document.getElementById("registerForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const msgDiv = document.getElementById("regMsg");
+    msgDiv.style.display = 'none';
+
+    // Samla data enligt din APIs förväntningar
+    const data = {
+      name: document.getElementById("regName").value,
+      age: Number(document.getElementById("regAge").value),
+      username: document.getElementById("regEmail").value,
+      password: document.getElementById("regPassword").value
+    };
+
     try {
-      const id = localStorage.getItem("userId");
-      if(!id) return;
-      const profile = await window.getProfile();
-      if(profile) showProfile(profile);
-    } catch(err) { console.error(err); }
+      const response = await fetch(`${API_URL}/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (response.status === 201) {
+        const user = await response.json();
+        // Spara användare och logga in direkt
+        localStorage.setItem('user', JSON.stringify(user));
+        handleLoginSuccess(user);
+      } else if (response.status === 409) {
+        msgDiv.textContent = "Användarnamnet (e-post) är upptaget.";
+        msgDiv.style.display = 'block';
+      } else {
+        msgDiv.textContent = "Ett fel inträffade vid registrering.";
+        msgDiv.style.display = 'block';
+      }
+    } catch (error) {
+      console.error(error);
+      msgDiv.textContent = "Kunde inte nå servern.";
+      msgDiv.style.display = 'block';
+    }
   });
-</script>
 
+  // --- 4. Logga in (Kopplat till din API-kod för /login) ---
+  document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const msgDiv = document.getElementById("loginMsg");
+    msgDiv.style.display = 'none';
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
 
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
+      if (response.ok) { // Status 200
+        const user = await response.json();
+        // Spara användare och visa profil
+        localStorage.setItem('user', JSON.stringify(user));
+        handleLoginSuccess(user);
+      } else {
+        msgDiv.textContent = "Fel användarnamn eller lösenord.";
+        msgDiv.style.display = 'block';
+      }
+    } catch (error) {
+      console.error(error);
+      msgDiv.textContent = "Kunde inte nå servern (kontrollera att den är igång).";
+      msgDiv.style.display = 'block';
+    }
+  });
 
+  // --- 5. Hantera Inloggad Vy ---
+  function handleLoginSuccess(user) {
+    // Dölj login-boxen, visa profilkortet
+    authContainer.style.display = 'none';
+    profileCard.style.display = 'block';
+
+    // Fyll i informationen i kortet
+    document.getElementById("profileName").textContent = user.name;
+    document.getElementById("profileAge").textContent = user.age;
+    document.getElementById("profileUsername").textContent = user.username;
+
+    // Skapa initialer för avataren
+    if (user.name) {
+      const parts = user.name.trim().split(" ");
+      let initials = parts[0][0];
+      if (parts.length > 1) initials += parts[parts.length - 1][0];
+      document.getElementById("profileAvatar").textContent = initials.toUpperCase();
+    }
+
+    // UPPDATERA NAVBAR: Visa email/användarnamn i hörnet
+    navUserDiv.textContent = user.username; 
+  }
+
+  // --- 6. Logga ut ---
+  function logout() {
+    // Ta bort sparad info
+    localStorage.removeItem('user');
+    
+    // Rensa Navbar
+    navUserDiv.textContent = "";
+
+    // Återställ vyer
+    profileCard.style.display = 'none';
+    authContainer.style.display = 'block';
+    
+    // Rensa formulär
+    document.getElementById("registerForm").reset();
+    document.getElementById("loginForm").reset();
+    switchTab('login'); 
+  }
 </script>
 
 </body>
