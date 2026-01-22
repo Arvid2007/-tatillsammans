@@ -5,80 +5,147 @@
   <title>Äta Tillsammans</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
-</head>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-<style>
-    .section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: auto;
-    padding: 20px;
-    margin: 0;
-    padding: 0;
+  <style>
+    /* --- APPLY FONT --- */
+    body { 
+      margin: 0; 
+      font-family: 'Poppins', sans-serif; /* Matches Profile Page */
+    }
+    
+    /* --- NAVBAR STYLING --- */
+    .navbar { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 20px 30px; 
+      background: #000;   
+      color: white;       
+      position: relative; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+      height: 60px; 
     }
 
-    .section:nth-child(even) {
-    background: #f9f9f9;
+    /* Menu Icon */
+    .navbar .icon { 
+      font-size: 28px; 
+      cursor: pointer; 
+      color: white;
+      z-index: 5; 
     }
 
-    .section-content {
-    flex: 1;
-    padding: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    /* Logo (ABSOLUTE CENTER) */
+    .navbar .logo { 
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%); 
+      z-index: 1; 
+    }
+    .navbar .logo img { height: 55px; display: block; }
+    
+    /* Right Side Container */
+    .navbar-right {
+      display: flex; 
+      align-items: center; 
+      gap: 20px;
+      z-index: 100; 
+      position: relative;
     }
 
-    .section-content h2 {
-    font-size: 36px;
-    margin-bottom: 20px;
+    /* User Email - Now uses Poppins automatically via body, but we set weight */
+    #navUser {
+      font-size: 14px; 
+      font-weight: 400; /* Clean look */
+      color: white;
+      letter-spacing: 0.5px;
     }
 
-    .section-content p {
-    font-size: 20px;
-    line-height: 1.6;
+    /* --- PROFILE PICTURE (The "Pop Out" Effect) --- */
+    .profile-icon {
+      background-color: white; 
+      width: 40px;
+      height: 40px;
+      border-radius: 50%; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(255,255,255,0.2);
+      transition: transform 0.2s;
+    }
+    .profile-icon:hover {
+      transform: scale(1.1); 
+    }
+    .profile-icon img { 
+      height: 24px; 
+      width: auto;
+      vertical-align: middle;
     }
 
-    .section-image {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    /* Dropdown Menu */
+    .dropdown { display: none; position: absolute; top: 90px; left: 20px; background: white; border: 1px solid #ccc; z-index: 1000; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .dropdown a { padding: 15px 25px; text-decoration: none; color: #000; display: block; font-size: 16px; border-bottom: 1px solid #eee; }
+    
+    /* Sections */
+    .section { display: flex; align-items: center; justify-content: space-between; padding: 0; }
+    .section:nth-child(even) { background: #f9f9f9; }
+    .section-content { flex: 1; padding: 60px; display: flex; flex-direction: column; justify-content: center; }
+    .section-content h2 { font-size: 36px; margin-bottom: 20px; font-weight: 600; }
+    .section-content p { font-size: 18px; line-height: 1.6; font-weight: 300; }
+    .section-image { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .section-image img { max-width: 40%; max-height: 40%; border-radius: 12px; object-fit: cover; }
+
+    /* --- HERO SECTION --- */
+    .hero { 
+      text-align: center; 
+      padding: 40px 20px; 
+      background-image: url('hero.jpg'); 
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white; 
+      text-shadow: 0px 2px 6px rgba(0,0,0,0.9);
     }
 
-    .section-image img {
-    max-width: 40%;
-    max-height: 40%;
-    border-radius: 12px;
-    object-fit: cover;
+    .hero h1 { margin-top: 0; font-size: 2.5rem; font-weight: 600; }
+    .hero p { font-size: 1.2rem; margin-bottom: 20px; font-weight: 300; }
+
+    .hero button { 
+      padding: 12px 24px; 
+      font-size: 16px; 
+      cursor: pointer; 
+      border: none; 
+      border-radius: 30px; 
+      background-color: #fff; 
+      color: #000; 
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: 0.3s;
     }
-
-
+    .hero button:hover { background-color: #f0f0f0; transform: translateY(-2px); }
   </style>
+</head>
 <body>
   
-<script>
-
-// global app state
-const AppState = {
-  userId: -1,
-}
-
-// call API
-const serverAddress = "http://localhost:3123";
-
-
-
-
-
-</script>
-  <!-- Navbar -->
   <div class="navbar">
     <div class="icon" onclick="toggleMenu()">☰</div>
-    <div class="logo"><a href="index.html"><img src="logo.png" alt="Logo"></a></div>
-    <div class="icon"><a href="profile.html"><img src="profile.png" alt="Profil"></a></div>
+    
+    <div class="logo">
+      <a href="index.html"><img src="logo.png" alt="Logo"></a>
+    </div>
+
+    <div class="navbar-right">
+      <div id="navUser"></div>
+      
+      <a href="profile.html" class="profile-icon">
+        <img src="profile.png" alt="Profil">
+      </a>
+    </div>
   </div>
+
   <div class="dropdown" id="menu">
     <a href="index.html">Hem</a>
     <a href="activities.html">Hitta & Boka</a>
@@ -86,7 +153,6 @@ const serverAddress = "http://localhost:3123";
     <a href="profile.html">Min Profil</a>
   </div>
 
-  <!-- Hero -->
   <section class="hero">
     <div class="hero-content">
       <h1>Äta Tillsammans</h1>
@@ -114,17 +180,24 @@ const serverAddress = "http://localhost:3123";
     <div class="section-content">
       <h2>Målgrupp</h2>
       <p>
-Målgruppen för “Äta tillsammans” är främst äldre personer som vill träffa nya människor, umgås och delta i sociala aktiviteter. Appen riktar sig till dem som vill bryta vardagsrutiner, hitta nya vänner och engagera sig i trevliga träffar, allt via en enkel och användarvänlig plattform.
+        Målgruppen för “Äta tillsammans” är främst äldre personer som vill träffa nya människor, umgås och delta i sociala aktiviteter. Appen riktar sig till dem som vill bryta vardagsrutiner, hitta nya vänner och engagera sig i trevliga träffar, allt via en enkel och användarvänlig plattform.
       </p>
     </div>
   </section>
   
-  
-  
+  <footer style="background:#000; color:#fff; text-align:center; padding:30px; font-size:14px;">
+    <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
+    <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
+    <p>
+      <a href="privacy.html" style="color:#aaa; text-decoration:underline;">Integritetspolicy</a> | 
+      <a href="terms.html" style="color:#aaa; text-decoration:underline;">Användarvillkor</a>
+    </p>
+  </footer>
+
   <script>
     function toggleMenu() {
       const menu = document.getElementById("menu");
-      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+      menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
     }
   </script>
 
@@ -135,18 +208,8 @@ Målgruppen för “Äta tillsammans” är främst äldre personer som vill tr�
         .catch(err => console.log('Service Worker misslyckades', err));
     }
   </script>
-<footer style="background:#222; color:#fff; text-align:center; padding:20px; font-size:14px;">
-  <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
-  <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
-  <p>
-  
-    <a href="privacy.html" style="color:#fff; text-decoration:underline;">Integritetspolicy</a> | 
-    <a href="terms.html" style="color:#fff; text-decoration:underline;">Användarvillkor</a>
-  </p>
-  <p>Följ oss: 
-    <a href="#" style="color:#fff;">Facebook</a> | 
-    <a href="#" style="color:#fff;">Instagram</a>
-  </p>
-</footer>
+
+  <script src="auth.js"></script>
+
 </body>
 </html>
