@@ -2,48 +2,135 @@
 <html lang="sv">
 <head>
 <meta charset="UTF-8">
-<title>Träff</title>
+<title>Träffdetaljer</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
 <style>
+/* -------- GLOBAL STYLES -------- */
 body { font-family: 'Poppins', sans-serif; background-color: #fafafa; margin: 0; color: #333; }
-.navbar { display: flex; align-items: center; padding: 10px 20px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.navbar .logo img { height: 40px; }
-.navbar .icon img { height: 32px; cursor: pointer; margin-left: auto; }
-.dropdown { display: none; flex-direction: column; position: absolute; top: 60px; right: 20px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.dropdown a { padding: 10px 20px; text-decoration: none; color: #333; }
-.group-section { max-width: 900px; margin: 50px auto; padding: 20px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-.group-header h2 { margin: 0 0 10px 0; }
-.group-header p { margin: 2px 0 15px 0; color: #666; }
-.participants, .messages { margin-bottom: 20px; }
-.participants { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.participants strong { margin-right: 10px; }
-.avatar { width: 34px; height: 34px; border-radius: 50%; background: black; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-.message { margin-bottom: 10px; }
-.message strong { margin-right: 5px; }
-.chat-box { display: flex; gap: 8px; }
-.chat-box input { flex: 1; padding: 10px; border: 2px solid #333; }
-.chat-box button { padding: 10px 15px; border: 2px solid #333; background: transparent; cursor: pointer; }
-.leave-btn { padding: 10px 15px; border: 2px solid red; background: transparent; color: red; cursor: pointer; margin-top: 10px; }
+
+/* -------- NAVBAR (SVART DESIGN) -------- */
+.navbar { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 15px 20px; 
+  background: #000; 
+  color: #fff;      
+  position: relative;
+  z-index: 1000;
+}
+
+.navbar a {
+  color: #fff; 
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.navbar .logo img { 
+  height: 40px; 
+  display: block;
+}
+
+.icon {
+  font-size: 24px;
+  cursor: pointer;
+  width: 30px; 
+  text-align: center;
+}
+.icon:last-child {
+  text-align: right;
+}
+
+/* -------- DROPDOWN MENU -------- */
+.dropdown { 
+  display: none; 
+  flex-direction: column; 
+  position: absolute; 
+  top: 70px; 
+  left: 0;   
+  background: #111; 
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
+  width: 200px;
+  z-index: 999;
+}
+
+.dropdown a { 
+  padding: 15px 20px; 
+  text-decoration: none; 
+  color: #fff; 
+  border-bottom: 1px solid #333;
+}
+
+.dropdown a:hover {
+  background: #333;
+}
+
+/* -------- GRUPP SEKTION -------- */
+.group-section { 
+    max-width: 900px; 
+    margin: 50px auto; 
+    padding: 30px; 
+    background: #fff; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    border-radius: 8px;
+}
+
+.group-section h2 { margin-top: 0; font-size: 28px; }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.info-item label { font-size: 12px; color: #777; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.info-item p { margin: 0; font-size: 16px; font-weight: 500; }
+
+.participants-section h3 { font-size: 18px; margin-bottom: 10px; }
+.participants { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.avatar { 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%; 
+    background: #333; 
+    color: white; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    font-size: 16px; 
+    font-weight: bold;
+    cursor: help; /* Visar att man kan hålla musen över för namn */
+}
+
+.status-full { color: red; font-weight: bold; }
+.status-open { color: green; font-weight: bold; }
+
+.leave-btn { 
+    margin-top: 30px; 
+    padding: 12px 25px; 
+    border: 2px solid #d9534f; 
+    background: transparent; 
+    color: #d9534f; 
+    cursor: pointer; 
+    font-weight: bold; 
+    border-radius: 4px;
+    transition: 0.2s;
+}
+.leave-btn:hover { background: #d9534f; color: white; }
+
 </style>
 </head>
 <body>
 
-<script>
-// global app state
-const AppState = {
-  userId: -1,
-}
-
-// call API
-const serverAddress = "http://localhost:3123";
-</script>
-
-<!-- NAVBAR -->
 <div class="navbar">
-  <div class="icon" onclick="toggleMenu()">☰</div>
-  <div class="logo"><a href="index.html"><img src="logo.png"></a></div>
-  <div class="icon"><a href="profile.html"><img src="profile.png"></a></div>
+  <div class="icon" id="menuToggle">☰</div>
+  <div class="logo"><a href="index.html"><img src="logo.png" alt="Logo"></a></div>
+  <div class="icon"><a href="profile.html"><img src="profile.png" alt="Profil"></a></div>
 </div>
 
 <div class="dropdown" id="menu">
@@ -54,126 +141,198 @@ const serverAddress = "http://localhost:3123";
 </div>
 
 <section class="group-section">
-  <div class="group-header">
-    <h2 id="groupName">Träff</h2>
-    <p id="groupInfo">Stad • Datum</p>
+  <h2 id="groupName">Laddar...</h2>
+
+  <div class="info-grid">
+      <div class="info-item">
+          <label>Tid</label>
+          <p id="groupTime">-</p>
+      </div>
+      <div class="info-item">
+          <label>Plats</label>
+          <p id="groupLocation">-</p>
+      </div>
+      <div class="info-item">
+          <label>Adress</label>
+          <p id="groupAddress">-</p>
+      </div>
+      <div class="info-item">
+          <label>Platser</label>
+          <p id="groupSeats">-</p>
+      </div>
   </div>
 
-  <div class="participants">
-    <strong>Deltagare:</strong>
-    <div id="participantsContainer"></div>
+  <div class="participants-section">
+      <h3>Deltagare</h3>
+      <div class="participants" id="participantsContainer"></div>
+      <p id="noParticipantsMsg" style="display:none; color:#777; font-style:italic;">Inga deltagare än.</p>
   </div>
 
-  <div class="messages">
-    <strong>Chatt:</strong>
-    <div id="messagesContainer" style="max-height:300px; overflow-y:auto;"></div>
-  </div>
-
-  <div class="chat-box">
-    <input type="text" id="chatInput" placeholder="Skriv meddelande...">
-    <button id="sendBtn">Skicka</button>
-  </div>
-
-  <button class="leave-btn" id="leaveBtn">Lämna träff</button>
+  <button class="leave-btn" id="leaveBtn">Gå ur träff</button>
 </section>
 
-<script src="api-server.js"></script>
+<footer style="background:#222; color:#fff; text-align:center; padding:20px; margin-top: 50px;">
+  © 2026 Äta Tillsammans
+</footer>
+
 <script>
-function toggleMenu() {
-  const menu = document.getElementById("menu");
-  menu.style.display = menu.style.display === "block" ? "none" : "block";
+const API = "http://localhost:3123"
+
+// ---------------- MENU ----------------
+const menuToggle = document.getElementById("menuToggle")
+const menu = document.getElementById("menu")
+
+menuToggle.onclick = () => {
+  menu.style.display = menu.style.display === "flex" ? "none" : "flex"
 }
 
-// --- Init ---
-const urlParams = new URLSearchParams(window.location.search);
-const groupId = urlParams.get("id");
-
-let currentUser = null;
-let currentGroup = { name: "Träff", city: "Stad", time: Date.now(), members: [], messages: [] };
-
-// Hämta aktuell användare
-async function initUser() {
-  try {
-    currentUser = await getProfile(); // från api.js
-    if(!currentUser) alert("Du måste vara inloggad för att delta i träffen!");
-  } catch(e) { console.error(e); }
+// ---------------- LOGIN (MOCK) ----------------
+async function getProfile() {
+  return { id: 1, firstName: "Test" }
 }
 
-// Hämta gruppdata
-async function fetchGroup() {
-  // Placeholder – ersätt med backend när det är klart
-  // Exempel: currentGroup = await getGroup(groupId);
-  return currentGroup;
+// ---------------- STATE ----------------
+let currentUser = null
+let activity = null
+let participants = []
+let currentLocation = null
+
+const params = new URLSearchParams(window.location.search)
+const activityId = params.get("id")
+
+// ---------------- API ----------------
+async function getActivity(id) {
+  const res = await fetch(`${API}/activity/${id}`)
+  if (!res.ok) throw new Error("Träff hittades inte")
+  return res.json()
 }
 
-// Rendera grupp
-function renderGroup() {
-  const participantsContainer = document.getElementById("participantsContainer");
-  participantsContainer.innerHTML = "";
-  currentGroup.members.forEach(member => {
-    const avatar = document.createElement("div");
-    avatar.className = "avatar";
-    avatar.textContent = member.name[0];
-    avatar.title = member.name;
-    participantsContainer.appendChild(avatar);
-  });
-
-  const messagesContainer = document.getElementById("messagesContainer");
-  messagesContainer.innerHTML = "";
-  currentGroup.messages.forEach(msg => {
-    const div = document.createElement("div");
-    div.className = "message";
-    div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
-    messagesContainer.appendChild(div);
-  });
-
-  document.getElementById("groupName").textContent = currentGroup.name;
-  document.getElementById("groupInfo").textContent = `${currentGroup.city} • ${new Date(currentGroup.time).toLocaleString("sv-SE")}`;
+// Ny funktion för att hämta alla locations och hitta rätt
+async function getLocation(locId) {
+    const res = await fetch(`${API}/location`)
+    if (!res.ok) return null
+    const locations = await res.json()
+    return locations.find(l => l.id === locId)
 }
 
-// Skicka meddelande
-document.getElementById("sendBtn").addEventListener("click", () => {
-  const text = document.getElementById("chatInput").value.trim();
-  if(!text || !currentUser) return;
-  currentGroup.messages.push({ user: currentUser.firstName, text });
-  document.getElementById("chatInput").value = "";
-  renderGroup();
-});
+async function getParticipants(id) {
+  const res = await fetch(`${API}/userActivity/activity/${id}`)
+  if (!res.ok) return []
 
-// Enter för att skicka
-document.getElementById("chatInput").addEventListener("keydown", e => {
-  if(e.key === "Enter") document.getElementById("sendBtn").click();
-});
+  const relations = await res.json()
+  const users = await fetch(`${API}/users`).then(r => r.json())
+  return relations.map(r => users.find(u => u.id === r.userId))
+}
 
-// Lämna träff
-document.getElementById("leaveBtn").addEventListener("click", () => {
-  if(!currentUser) return;
-  if(confirm("Är du säker på att du vill lämna träffen?")) {
-    currentGroup.members = currentGroup.members.filter(m => m.id !== currentUser.id);
-    renderGroup();
-    window.location.href = "activities.html";
+async function joinActivity() {
+  await fetch(`${API}/userActivity`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: currentUser.id, activityId })
+  })
+}
+
+async function leaveActivity() {
+  await fetch(`${API}/userActivity`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: currentUser.id, activityId })
+  })
+  window.location.href = "activities.html"
+}
+
+// ---------------- RENDER ----------------
+function render() {
+  // 1. Grundinfo
+  document.getElementById("groupName").textContent = activity.name
+  document.getElementById("groupTime").textContent = new Date(activity.time).toLocaleString("sv-SE", { dateStyle: 'long', timeStyle: 'short' })
+  
+  // 2. Platsinfo
+  if (currentLocation) {
+      document.getElementById("groupLocation").textContent = currentLocation.city
+      document.getElementById("groupAddress").textContent = currentLocation.address
+  } else {
+      document.getElementById("groupLocation").textContent = "Okänd plats"
+      document.getElementById("groupAddress").textContent = "-"
   }
-});
 
-// Init
-(async () => {
-  await initUser();
-  currentGroup = await fetchGroup();
-  renderGroup();
-})();
+  // 3. Platser (Matematik)
+  const totalSeats = activity.seats
+  const bookedSeats = participants.length
+  const seatsEl = document.getElementById("groupSeats")
+  
+  if (bookedSeats >= totalSeats) {
+      seatsEl.innerHTML = `<span class="status-full">Fullbokat (${bookedSeats}/${totalSeats})</span>`
+  } else {
+      seatsEl.innerHTML = `<span class="status-open">${bookedSeats} av ${totalSeats} bokade</span>`
+  }
+
+  // 4. Deltagare
+  const container = document.getElementById("participantsContainer")
+  container.innerHTML = ""
+
+  if (participants.length === 0) {
+      document.getElementById("noParticipantsMsg").style.display = "block"
+  } else {
+      document.getElementById("noParticipantsMsg").style.display = "none"
+      participants.forEach(u => {
+        const div = document.createElement("div")
+        div.className = "avatar"
+        // Visa första bokstaven om namn finns, annars ?
+        div.textContent = u.name ? u.name[0].toUpperCase() : "?"
+        // Tooltip med hela namnet när man håller musen över
+        div.title = u.name || "Okänd användare"
+        container.appendChild(div)
+      })
+  }
+}
+
+// ---------------- INIT ----------------
+document.getElementById("leaveBtn").onclick = async () => {
+  if (confirm("Vill du lämna träffen?")) {
+    await leaveActivity()
+  }
+}
+
+;(async () => {
+  currentUser = await getProfile()
+  if (!currentUser) {
+    alert("Du måste vara inloggad")
+    return
+  }
+
+  if (!activityId) {
+     document.getElementById("groupName").textContent = "Ingen träff vald"
+     return
+  }
+
+  try {
+    // Hämta data
+    activity = await getActivity(activityId)
+    participants = await getParticipants(activityId)
+    currentLocation = await getLocation(activity.locationId)
+
+    // Om användaren inte är med, lägg till automatiskt (som i din förra kod)
+    const isMember = participants.some(p => p.id === currentUser.id)
+    if (!isMember) {
+      // Kontrollera om det finns plats innan vi joinar
+      if (participants.length < activity.seats) {
+          await joinActivity()
+          participants = await getParticipants(activityId)
+      } else {
+          alert("Tyvärr, träffen är fullbokad!")
+          window.location.href = "activities.html"
+          return
+      }
+    }
+
+    render()
+  } catch (err) {
+    console.error(err)
+    document.getElementById("groupName").textContent = "Kunde inte ladda träff"
+  }
+})()
 </script>
 
-<footer style="background:#222; color:#fff; text-align:center; padding:20px; font-size:14px;">
-  <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
-  <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
-  <p>
-    <a href="privacy.html" style="color:#fff; text-decoration:underline;">Integritetspolicy</a> | 
-    <a href="terms.html" style="color:#fff; text-decoration:underline;">Användarvillkor</a>
-  </p>
-  <p>Följ oss: 
-    <a href="#" style="color:#fff;">Facebook</a> | 
-    <a href="#" style="color:#fff;">Instagram</a>
-  </p>
-</footer>
 </body>
 </html>

@@ -16,24 +16,41 @@ body { font-family: 'Poppins', sans-serif; background-color: #fafafa; margin:0; 
 .group-list { padding:25px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
 .search-input { width:100%; padding:12px; border:2px solid #333; margin-bottom:20px; }
 .group-card { border:2px solid #333; padding:20px; margin-bottom:15px; }
-.participants { display:flex; gap:8px; margin-top:10px; }
-.avatar { width:34px; height:34px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; font-size:13px; }
-.join-btn { padding:10px; border:2px solid black; background:transparent; cursor:pointer; }
-.joined { background:black; color:white; }
-.leave-btn { padding:10px; border:2px solid red; background:transparent; color:red; cursor:pointer; }
-.chat-btn { padding:10px; border:2px solid green; background:transparent; color:green; }
+.chat-btn { padding:10px; border:2px solid green; background:transparent; color:green; cursor:pointer; }
 </style>
 </head>
 <body>
 
 <script>
-// global app state
+/* -------- GLOBAL STATE -------- */
 const AppState = {
-  userId: -1,
+  userId: -1
 }
 
-// call API
-const serverAddress = "http://localhost:3123";
+const serverAddress = "http://localhost:3123"
+
+/* -------- ACTIVITY API -------- */
+async function getActivities() {
+  const res = await fetch(`${serverAddress}/activity`)
+  if (!res.ok) throw new Error("Kunde inte hämta träffar")
+  return res.json()
+}
+
+async function createActivity(data) {
+  const res = await fetch(`${serverAddress}/activity`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  if (!res.ok) throw new Error("Kunde inte skapa träff")
+  return res.json()
+}
+
+/* -------- MOCK USER (tills login är klart) -------- */
+async function getProfile() {
+  // tillfällig användare
+  return { id: 1, firstName: "Test" }
+}
 </script>
 
 <!-- NAVBAR -->
@@ -60,7 +77,7 @@ const serverAddress = "http://localhost:3123";
 <h2>Skapa eller gå med i träffar</h2>
 <div class="group-layout">
 
-  <!-- Skapa träff -->
+  <!-- SKAPA TRÄFF -->
   <div class="create-group">
     <h3>Skapa en ny träff</h3>
     <form id="createGroupForm">
@@ -76,7 +93,7 @@ const serverAddress = "http://localhost:3123";
     </form>
   </div>
 
-  <!-- Lista träffar -->
+  <!-- LISTA TRÄFFAR -->
   <div class="group-list">
     <h3>Alla träffar</h3>
     <input id="searchInput" class="search-input" placeholder="Sök träff...">
@@ -86,130 +103,96 @@ const serverAddress = "http://localhost:3123";
 </div>
 </section>
 
-<script src="api-server.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const menuToggle = document.getElementById("menuToggle");
-  const menu = document.getElementById("menu");
-  menuToggle.addEventListener("click", () => {
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-  });
+document.addEventListener("DOMContentLoaded", async () => {
+  const menuToggle = document.getElementById("menuToggle")
+  const menu = document.getElementById("menu")
+  const groupsContainer = document.getElementById("groupsContainer")
+  const searchInput = document.getElementById("searchInput")
+  const createForm = document.getElementById("createGroupForm")
+  const loginMessage = document.getElementById("loginMessage")
 
-  const createForm = document.getElementById("createGroupForm");
-  const loginMessage = document.getElementById("loginMessage");
-  const groupsContainer = document.getElementById("groupsContainer");
-  const searchInput = document.getElementById("searchInput");
-
-  let currentUser = null; // användaren från backend
-  let groups = []; // kommer från backend
-
-  // --- Kontrollera inloggad användare ---
-  async function checkUser() {
-    try {
-      const profile = await getProfile();
-      if(profile) currentUser = profile;
-    } catch {}
+  menuToggle.onclick = () => {
+    menu.style.display = menu.style.display === "block" ? "none" : "block"
   }
 
-  // --- Hämta träffar från backend ---
+  let currentUser = await getProfile()
+  let groups = []
+
+  /* -------- HÄMTA TRÄFFAR -------- */
   async function fetchGroups() {
     try {
-      const res = await fetch('http://localhost:3123/groups'); // backend endpoint
-      if(!res.ok) throw new Error('Kunde inte hämta träffar');
-      groups = await res.json();
-      renderGroups();
-    } catch(err) { console.error(err); }
+      groups = await getActivities()
+      renderGroups()
+    } catch (e) {
+      console.error(e)
+    }
   }
 
-  // --- Rendera träffar ---
+  /* -------- RENDERA TRÄFFAR -------- */
   function renderGroups() {
-    groupsContainer.innerHTML = "";
+    groupsContainer.innerHTML = ""
     groups.forEach(group => {
-      const joined = currentUser && group.members.includes(currentUser.id);
-      const card = document.createElement("div");
-      card.className = "group-card";
-      card.setAttribute("data-name", group.name.toLowerCase());
+      const card = document.createElement("div")
+      card.className = "group-card"
+      card.setAttribute("data-name", group.name.toLowerCase())
+
       card.innerHTML = `
         <h3>${group.name}</h3>
-        <p>${group.city} • ${new Date(group.time).toLocaleString("sv-SE")}</p>
-        <p>${group.members.length} / ${group.limit} platser</p>
-        <div class="participants">
-          ${group.members.map(m => `<div class="avatar">${m[0]}</div>`).join("")}
-        </div>
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <button class="join-btn ${joined ? "joined" : ""}">${joined ? "Du är med" : "Gå med"}</button>
-        </div>
-      `;
-      card.querySelector(".join-btn").onclick = async () => {
-        if(!currentUser){
-          alert("Du måste logga in för att gå med i en träff!");
-          return;
-        }
-        try{
-          const action = joined ? 'leave' : 'join';
-          const res = await fetch(`http://localhost:3123/groups/${group.id}/${action}`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({userId: currentUser.id})});
-          if(!res.ok) throw new Error('Misslyckades');
-          await fetchGroups();
-        } catch(err){ alert(err.message); }
-      };
-      groupsContainer.appendChild(card);
-    });
+        <p>${new Date(group.time).toLocaleString("sv-SE")}</p>
+        <p>${group.seats} platser</p>
+        <a href="group.html?id=${group.id}">
+          <button class="chat-btn">Visa träff</button>
+        </a>
+      `
+      groupsContainer.appendChild(card)
+    })
   }
 
-  // --- Skapa träff ---
+  /* -------- SKAPA TRÄFF -------- */
   createForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    if(!currentUser){
-      loginMessage.style.display="block";
-      loginMessage.scrollIntoView({ behavior: "smooth" });
-      return;
+    e.preventDefault()
+
+    if (!currentUser) {
+      loginMessage.style.display = "block"
+      return
     }
-    const name = document.getElementById("groupName").value;
-    const city = document.getElementById("groupCity").value;
-    const adress = document.getElementById("groupAdress").value;
-    const time = document.getElementById("groupTime").value;
-    const limit = Number(document.getElementById("groupLimit").value);
-    try{
-      const res = await fetch('http://localhost:3123/groups', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({name, city, adress, time, limit, members:[currentUser.id]})
-      });
-      if(!res.ok) throw new Error('Misslyckades att skapa träff');
-      createForm.reset();
-      loginMessage.style.display="none";
-      await fetchGroups();
-    } catch(err){ alert(err.message); }
-  });
 
-  // --- Sökfunktion ---
+    const name = groupName.value
+    const time = groupTime.value
+    const seats = Number(groupLimit.value)
+
+    try {
+      await createActivity({
+        name,
+        time,
+        seats,
+        locationId: 1,
+        creatorId: currentUser.id
+      })
+
+      createForm.reset()
+      loginMessage.style.display = "none"
+      fetchGroups()
+    } catch (err) {
+      alert(err.message)
+    }
+  })
+
+  /* -------- SÖK -------- */
   searchInput.addEventListener("input", e => {
-    const search = e.target.value.toLowerCase();
+    const q = e.target.value.toLowerCase()
     document.querySelectorAll(".group-card").forEach(card => {
-      card.style.display = card.getAttribute("data-name").includes(search) ? "block" : "none";
-    });
-  });
+      card.style.display = card.dataset.name.includes(q) ? "block" : "none"
+    })
+  })
 
-  // Init
-  (async () => {
-    await checkUser();
-    await fetchGroups();
-  })();
-
-});
+  fetchGroups()
+})
 </script>
 
 <footer style="background:#222; color:#fff; text-align:center; padding:20px; font-size:14px;">
   <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
-  <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
-  <p>
-    <a href="privacy.html" style="color:#fff; text-decoration:underline;">Integritetspolicy</a> | 
-    <a href="terms.html" style="color:#fff; text-decoration:underline;">Användarvillkor</a>
-  </p>
-  <p>Följ oss: 
-    <a href="#" style="color:#fff;">Facebook</a> | 
-    <a href="#" style="color:#fff;">Instagram</a>
-  </p>
 </footer>
 
 </body>
