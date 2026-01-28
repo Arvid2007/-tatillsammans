@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Poppins', sans-serif; background-color: #fafafa; margin: 0; color: #333; }
-
+    
     /* Navbar styles */
     .navbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 30px; background: #000; color: white; position: relative; height: 60px; }
     .navbar .icon { font-size: 28px; cursor: pointer; color: white; z-index: 5; }
@@ -34,9 +34,12 @@
     /* Form */
     .create-group { background: white; padding: 25px; margin-bottom: 35px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; align-items: center; border-radius: 8px; }
     .create-group form { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; }
-    .create-group input, .create-group button { padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-family: 'Poppins', sans-serif; }
+    .create-group input, .create-group select, .create-group button { padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-family: 'Poppins', sans-serif; }
     .create-group button { background: #000; color: white; cursor: pointer; font-weight: 600; border: none; }
     .create-group button:hover { opacity: 0.8; }
+    
+    /* New Location Fields Container */
+    #newLocationFields { display: none; flex-direction: column; gap: 12px; border-left: 3px solid #000; padding-left: 10px; margin-left: 5px; }
 
     /* List */
     .group-list { padding: 25px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
@@ -86,8 +89,18 @@
       <h3>Skapa en ny träff</h3>
       <form id="createGroupForm">
         <input id="groupName" placeholder="Träffens namn" required>
-        <input id="groupCity" placeholder="Stad" required>
-        <input id="groupAdress" placeholder="Adress" required>
+        
+        <label style="font-size: 12px; color: #666; margin-bottom: -8px;">Plats</label>
+        <select id="locationSelect" required>
+            <option value="" disabled selected>Välj en plats...</option>
+            <option value="NEW" style="font-weight: bold;">➕ Skapa ny plats</option>
+            </select>
+
+        <div id="newLocationFields">
+            <input id="groupCity" placeholder="Stad">
+            <input id="groupAdress" placeholder="Adress">
+        </div>
+
         <div style="display: flex; flex-direction: column;">
           <label style="font-size: 12px; color: #666; margin-bottom: 4px;">Tidpunkt</label>
           <input id="groupTime" type="datetime-local" required>
@@ -124,6 +137,10 @@
     const loginMessage = document.getElementById("loginMessage");
     const groupsContainer = document.getElementById("groupsContainer");
     const searchInput = document.getElementById("searchInput");
+    const locationSelect = document.getElementById("locationSelect");
+    const newLocationFields = document.getElementById("newLocationFields");
+    const groupCityInput = document.getElementById("groupCity");
+    const groupAdressInput = document.getElementById("groupAdress");
 
     // --- State ---
     let currentUser = null;
@@ -131,18 +148,20 @@
     let locations = [];
     let allUsers = [];
 
-    // --- 1. Check User ---
+    // --- 1. Check User (Via Auth.js if available, else localStorage manually) ---
     function checkUser() {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        currentUser = JSON.parse(storedUser);
+      if (typeof Auth !== 'undefined') {
+        currentUser = Auth.getUser();
+        Auth.updateNavbar();
+      } else {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) currentUser = JSON.parse(storedUser);
       }
     }
 
     // --- 2. Fetch Data from API ---
     async function fetchData() {
       try {
-        // Fetch Locations, Activities AND Users in parallel
         const [locRes, actRes, userRes] = await Promise.all([
           fetch(`${API_URL}/location`),
           fetch(`${API_URL}/activity`),
@@ -153,6 +172,7 @@
         activities = await actRes.json();
         allUsers = await userRes.json();
 
+        populateLocationDropdown();
         renderActivities();
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -160,11 +180,37 @@
       }
     }
 
-    // --- 3. Render Activities ---
+    // --- 3. Populate Location Dropdown ---
+    function populateLocationDropdown() {
+        while (locationSelect.options.length > 2) {
+            locationSelect.remove(2);
+        }
+
+        locations.forEach(loc => {
+            const option = document.createElement("option");
+            option.value = loc.id;
+            // VISAR: Adress, Stad
+            option.textContent = `${loc.address}, ${loc.city}`;
+            locationSelect.appendChild(option);
+        });
+    }
+
+    // --- 4. Toggle New Location Fields ---
+    locationSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'NEW') {
+            newLocationFields.style.display = 'flex';
+            groupCityInput.setAttribute('required', 'true');
+            groupAdressInput.setAttribute('required', 'true');
+        } else {
+            newLocationFields.style.display = 'none';
+            groupCityInput.removeAttribute('required');
+            groupAdressInput.removeAttribute('required');
+        }
+    });
+
+    // --- 5. Render Activities ---
     async function renderActivities() {
       groupsContainer.innerHTML = "";
-
-      // Reverse to show newest first
       const displayList = activities.slice().reverse();
 
       if (displayList.length === 0) {
@@ -172,11 +218,9 @@
         return;
       }
 
-      // Loop through activities
       for (const activity of displayList) {
         const loc = locations.find(l => l.id === activity.locationId) || { city: "Okänd", address: "" };
 
-        // Fetch participant IDs for this specific activity
         let participants = [];
         let isJoined = false;
         let participantNames = "Inga deltagare än.";
@@ -184,18 +228,13 @@
         try {
           const pRes = await fetch(`${API_URL}/userActivity/activity/${activity.id}`);
           if (pRes.ok) {
-            participants = await pRes.json(); // returns array of { userId, activityId }
-
-            // Check if current user is joined
+            participants = await pRes.json();
             if (currentUser) {
               isJoined = participants.some(p => p.userId === currentUser.id);
             }
-
-            // Convert IDs to Names (UPDATED HERE: Using userObj.name)
             if (participants.length > 0) {
               participantNames = participants.map(p => {
                 const userObj = allUsers.find(u => u.id === p.userId);
-                // We use userObj.name first, if missing fallback to "Okänd"
                 return userObj ? userObj.name : "Okänd";
               }).join(", ");
             }
@@ -203,16 +242,15 @@
         } catch (err) { console.error(err); }
 
         const spotsLeft = activity.seats - participants.length;
-
-        // Create HTML Card
         const card = document.createElement("div");
         card.className = "group-card";
         card.setAttribute("data-name", activity.name.toLowerCase());
 
+        // HÄR VISAS ADRESS OCH STAD:
         card.innerHTML = `
         <h3 style="margin-top:0;">${activity.name}</h3>
         <p style="color:#666; font-size:14px;">
-          📍 ${loc.city}, ${loc.address} <br>
+          📍 ${loc.address}, ${loc.city} <br>
           📅 ${new Date(activity.time).toLocaleString("sv-SE")}
         </p>
         <p style="font-size:14px;">Platser kvar: <b>${Math.max(0, spotsLeft)}</b> / ${activity.seats}</p>
@@ -230,24 +268,20 @@
         </div>
       `;
 
-        // --- Button Logic: Join / Leave ---
         const btn = card.querySelector(`#btn-${activity.id}`);
         btn.onclick = async () => {
           if (!currentUser) {
             alert("Du måste logga in för att gå med i en träff!");
             return;
           }
-
           try {
             if (isJoined) {
-              // LEAVE
               await fetch(`${API_URL}/userActivity`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: currentUser.id, activityId: activity.id })
               });
             } else {
-              // JOIN
               if (spotsLeft <= 0) { alert("Fullbokat!"); return; }
               await fetch(`${API_URL}/userActivity`, {
                 method: 'POST',
@@ -255,11 +289,10 @@
                 body: JSON.stringify({ userId: currentUser.id, activityId: activity.id })
               });
             }
-            fetchData(); // Refresh list
+            fetchData();
           } catch (err) { console.error(err); }
         };
 
-        // --- Button Logic: Delete (Creator only) ---
         const delBtn = card.querySelector(`#del-${activity.id}`);
         if (delBtn) {
           delBtn.onclick = async () => {
@@ -277,7 +310,7 @@
       }
     }
 
-    // --- 4. Create Group Logic ---
+    // --- 6. Create Group Logic ---
     createForm.addEventListener("submit", async e => {
       e.preventDefault();
       if (!currentUser) {
@@ -285,42 +318,56 @@
         return;
       }
       const name = document.getElementById("groupName").value;
-      const city = document.getElementById("groupCity").value;
-      const address = document.getElementById("groupAdress").value;
       const time = document.getElementById("groupTime").value;
       const limit = Number(document.getElementById("groupLimit").value);
+      
+      const selection = locationSelect.value;
+      let finalLocationId = selection;
 
       try {
-        const locRes = await fetch(`${API_URL}/location`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: "Plats för " + name, address: address, city: city })
-        });
-        if (!locRes.ok) throw new Error("Kunde inte skapa plats");
-        const newLocation = await locRes.json();
+        // Step A: Handle Location
+        if (selection === 'NEW') {
+            const city = groupCityInput.value;
+            const address = groupAdressInput.value;
 
+            const locRes = await fetch(`${API_URL}/location`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: "Plats för " + name, address: address, city: city })
+            });
+            if (!locRes.ok) throw new Error("Kunde inte skapa plats");
+            const newLocation = await locRes.json();
+            finalLocationId = newLocation.id;
+        }
+
+        // Step B: Create Activity
         const actRes = await fetch(`${API_URL}/activity`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, time, seats: limit, locationId: newLocation.id, creatorId: currentUser.id })
+          body: JSON.stringify({ name, time, seats: limit, locationId: finalLocationId, creatorId: currentUser.id })
         });
         if (!actRes.ok) throw new Error("Kunde inte skapa träff");
 
         const newActivity = await actRes.json();
-        // Auto-join creator
+        
+        // Step C: Auto-join creator
         await fetch(`${API_URL}/userActivity`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: currentUser.id, activityId: newActivity.id })
         });
 
+        // Reset form
         createForm.reset();
+        newLocationFields.style.display = 'none'; 
+        groupCityInput.removeAttribute('required');
+        
         loginMessage.style.display = "none";
         fetchData();
       } catch (err) { console.error(err); }
     });
 
-    // --- 5. Search Function ---
+    // --- 7. Search Function ---
     searchInput.addEventListener("input", e => {
       const search = e.target.value.toLowerCase();
       document.querySelectorAll(".group-card").forEach(card => {
