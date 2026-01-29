@@ -4,14 +4,132 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Äta Tillsammans</title>
-  
-  <link rel="stylesheet" href="styles.css">
-  
   <link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* --- GRUNDLÄGGANDE --- */
+    *, *::before, *::after { box-sizing: border-box; }
+    
+    body { 
+      margin: 0; 
+      font-family: 'Poppins', sans-serif; 
+      background-color: #fafafa; 
+      color: #333; 
+    }
+
+    /* --- NAVBAR --- */
+    .navbar { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 0 30px; 
+      background: #000;   
+      color: white;       
+      height: 80px; 
+      position: relative; 
+      z-index: 1000; 
+    }
+
+    .navbar .icon { 
+      font-size: 28px; 
+      cursor: pointer; 
+      z-index: 1001; 
+    }
+
+    .navbar .logo { 
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .navbar .logo img { height: 50px; display: block; }
+    
+    .navbar-right {
+      display: flex; 
+      align-items: center; 
+      gap: 20px;
+      z-index: 100; 
+    }
+
+    #navUser { font-size: 14px; font-weight: 600; color: white; }
+
+    .profile-icon {
+      background-color: white; 
+      width: 40px;
+      height: 40px;
+      border-radius: 50%; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .profile-icon img { height: 24px; width: auto; }
+
+    /* Dropdown Menu */
+    .dropdown { display: none; position: absolute; top: 80px; left: 0; width: 250px; background: #000; z-index: 999; flex-direction: column; padding-bottom: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
+    .dropdown a { display: block; padding: 15px 25px; text-decoration: none; color: #fff; border-bottom: 1px solid #333; }
+    .dropdown a:hover { background: #222; }
+
+    /* --- HERO SEKTION --- */
+    .hero { 
+      background: url('hero.jpg') center/cover no-repeat;
+      color: #f0f0f0; 
+      padding: 80px 20px; 
+      text-align: center; 
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      min-height: 50vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero h1 { font-size: 3rem; margin: 0 0 20px; font-weight: 600; }
+    .hero p { font-size: 1.3rem; margin: 0 0 30px; font-weight: 300; }
+
+    .hero button { 
+      padding: 12px 30px; 
+      font-size: 16px; 
+      border: none; 
+      border-radius: 30px; 
+      background-color: #fff; 
+      color: #000; 
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer; 
+      transition: 0.3s;
+    }
+    .hero button:hover { background-color: #f0f0f0; transform: scale(1.05); }
+
+    /* --- INNEHÅLLSSEKTIONER --- */
+    .section { display: flex; align-items: center; justify-content: space-between; }
+    .section:nth-child(even) { background: #fff; }
+    .section:nth-child(odd) { background: #f9f9f9; }
+
+    .section-content { flex: 1; padding: 60px; }
+    .section-content h2 { font-size: 36px; margin-bottom: 20px; font-weight: 600; }
+    .section-content p { font-size: 18px; line-height: 1.6; font-weight: 300; }
+
+    .section-image { flex: 1; display: flex; justify-content: center; }
+    .section-image img { max-width: 60%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+    /* --- FOOTER --- */
+    footer { background: #000; color: #fff; text-align: center; padding: 30px; font-size: 14px; }
+    footer p { margin: 10px 0; }
+    footer a { color: #aaa; text-decoration: underline; margin: 0 5px; }
+    footer a:hover { color: #fff; }
+
+    /* --- RESPONSIVITET --- */
+    @media (max-width: 768px) {
+      .section { flex-direction: column; padding: 40px 0; }
+      .section:nth-child(even) { flex-direction: column-reverse; }
+      .section-content { padding: 30px; text-align: center; }
+      .section-image img { max-width: 80%; margin-bottom: 20px; }
+    }
+  </style>
 </head>
 <body>
-  
+
   <div class="navbar">
     <div class="icon" onclick="toggleMenu()">☰</div>
     
@@ -33,6 +151,7 @@
     <a href="index.html#about">Om oss</a>
     <a href="profile.html">Min Profil</a>
   </div>
+
   <section class="hero">
     <div class="hero-content">
       <h1>Äta Tillsammans</h1>
@@ -76,27 +195,26 @@
 
   <script src="auth.js"></script>
   <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menu");
+      menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-        // Meny-toggle funktion
-        window.toggleMenu = function() {
-            const menu = document.getElementById("menu");
-            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
-        }
+      // Visa användarnamn om inloggad
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        const navUser = document.getElementById('navUser');
+        if(navUser) navUser.innerText = user.name;
+      }
 
-        // Kolla om användaren är inloggad för att visa namn i navbaren
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            const navUser = document.getElementById('navUser');
-            if(navUser) navUser.innerText = user.name;
-        }
-
-        // Service Worker (För att appen ska funka offline/som app)
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-            .then(reg => console.log('Service Worker registrerad!'))
-            .catch(err => console.log('Service Worker misslyckades', err));
-        }
+      // Service Worker (om du använder det)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('Service Worker registrerad!'))
+          .catch(err => console.log('SW misslyckades', err));
+      }
     });
   </script>
 
