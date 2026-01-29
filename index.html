@@ -2,131 +2,13 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Äta Tillsammans</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
   
+  <link rel="stylesheet" href="styles.css">
+  
+  <link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <style>
-    /* --- APPLY FONT --- */
-    body { 
-      margin: 0; 
-      font-family: 'Poppins', sans-serif; /* Matches Profile Page */
-    }
-    
-    /* --- NAVBAR STYLING --- */
-    .navbar { 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      padding: 20px 30px; 
-      background: #000;   
-      color: white;       
-      position: relative; 
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-      height: 60px; 
-    }
-
-    /* Menu Icon */
-    .navbar .icon { 
-      font-size: 28px; 
-      cursor: pointer; 
-      color: white;
-      z-index: 5; 
-    }
-
-    /* Logo (ABSOLUTE CENTER) */
-    .navbar .logo { 
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%); 
-      z-index: 1; 
-    }
-    .navbar .logo img { height: 55px; display: block; }
-    
-    /* Right Side Container */
-    .navbar-right {
-      display: flex; 
-      align-items: center; 
-      gap: 20px;
-      z-index: 100; 
-      position: relative;
-    }
-
-    /* User Email - Now uses Poppins automatically via body, but we set weight */
-    #navUser {
-      font-size: 14px; 
-      font-weight: 400; /* Clean look */
-      color: white;
-      letter-spacing: 0.5px;
-    }
-
-    /* --- PROFILE PICTURE (The "Pop Out" Effect) --- */
-    .profile-icon {
-      background-color: white; 
-      width: 40px;
-      height: 40px;
-      border-radius: 50%; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(255,255,255,0.2);
-      transition: transform 0.2s;
-    }
-    .profile-icon:hover {
-      transform: scale(1.1); 
-    }
-    .profile-icon img { 
-      height: 24px; 
-      width: auto;
-      vertical-align: middle;
-    }
-
-    /* Dropdown Menu */
-    .dropdown { display: none; position: absolute; top: 90px; left: 20px; background: white; border: 1px solid #ccc; z-index: 1000; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .dropdown a { padding: 15px 25px; text-decoration: none; color: #000; display: block; font-size: 16px; border-bottom: 1px solid #eee; }
-    
-    /* Sections */
-    .section { display: flex; align-items: center; justify-content: space-between; padding: 0; }
-    .section:nth-child(even) { background: #f9f9f9; }
-    .section-content { flex: 1; padding: 60px; display: flex; flex-direction: column; justify-content: center; }
-    .section-content h2 { font-size: 36px; margin-bottom: 20px; font-weight: 600; }
-    .section-content p { font-size: 18px; line-height: 1.6; font-weight: 300; }
-    .section-image { flex: 1; display: flex; align-items: center; justify-content: center; }
-    .section-image img { max-width: 40%; max-height: 40%; border-radius: 12px; object-fit: cover; }
-
-    /* --- HERO SECTION --- */
-    .hero { 
-      text-align: center; 
-      padding: 40px 20px; 
-      background-image: url('hero.jpg'); 
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: white; 
-      text-shadow: 0px 2px 6px rgba(0,0,0,0.9);
-    }
-
-    .hero h1 { margin-top: 0; font-size: 2.5rem; font-weight: 600; }
-    .hero p { font-size: 1.2rem; margin-bottom: 20px; font-weight: 300; }
-
-    .hero button { 
-      padding: 12px 24px; 
-      font-size: 16px; 
-      cursor: pointer; 
-      border: none; 
-      border-radius: 30px; 
-      background-color: #fff; 
-      color: #000; 
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      transition: 0.3s;
-    }
-    .hero button:hover { background-color: #f0f0f0; transform: translateY(-2px); }
-  </style>
 </head>
 <body>
   
@@ -139,7 +21,6 @@
 
     <div class="navbar-right">
       <div id="navUser"></div>
-      
       <a href="profile.html" class="profile-icon">
         <img src="profile.png" alt="Profil">
       </a>
@@ -152,7 +33,6 @@
     <a href="index.html#about">Om oss</a>
     <a href="profile.html">Min Profil</a>
   </div>
-
   <section class="hero">
     <div class="hero-content">
       <h1>Äta Tillsammans</h1>
@@ -185,31 +65,40 @@
     </div>
   </section>
   
-  <footer style="background:#000; color:#fff; text-align:center; padding:30px; font-size:14px;">
+  <footer>
     <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
     <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
     <p>
-      <a href="privacy.html" style="color:#aaa; text-decoration:underline;">Integritetspolicy</a> | 
-      <a href="terms.html" style="color:#aaa; text-decoration:underline;">Användarvillkor</a>
+      <a href="privacy.html">Integritetspolicy</a> | 
+      <a href="terms.html">Användarvillkor</a>
     </p>
   </footer>
 
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById("menu");
-      menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
-    }
-  </script>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log('Service Worker registrerad!'))
-        .catch(err => console.log('Service Worker misslyckades', err));
-    }
-  </script>
-
   <script src="auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Meny-toggle funktion
+        window.toggleMenu = function() {
+            const menu = document.getElementById("menu");
+            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+        }
+
+        // Kolla om användaren är inloggad för att visa namn i navbaren
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            const user = JSON.parse(storedUser);
+            const navUser = document.getElementById('navUser');
+            if(navUser) navUser.innerText = user.name;
+        }
+
+        // Service Worker (För att appen ska funka offline/som app)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+            .then(reg => console.log('Service Worker registrerad!'))
+            .catch(err => console.log('Service Worker misslyckades', err));
+        }
+    });
+  </script>
 
 </body>
 </html>

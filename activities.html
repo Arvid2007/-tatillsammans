@@ -2,395 +2,350 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hitta & Boka</title>
+  
   <link rel="stylesheet" href="styles.css">
+  
   <link rel="icon" type="image/png" sizes="128x128" href="logowebb.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Poppins', sans-serif; background-color: #fafafa; margin: 0; color: #333; }
-    
-    /* Navbar styles */
-    .navbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 30px; background: #000; color: white; position: relative; height: 60px; }
-    .navbar .icon { font-size: 28px; cursor: pointer; color: white; z-index: 5; }
-    .navbar .logo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1; }
-    .navbar .logo img { height: 55px; display: block; }
-    .navbar-right { display: flex; align-items: center; gap: 20px; z-index: 100; }
-    #navUser { font-size: 14px; font-weight: 400; color: white; }
-    .profile-icon { background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .profile-icon img { height: 24px; width: auto; }
-
-    /* Dropdown */
-    .dropdown { display: none; position: absolute; top: 90px; left: 20px; background: white; border: 1px solid #ccc; z-index: 1000; flex-direction: column; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
-    .dropdown a { padding: 15px 25px; text-decoration: none; color: #000; display: block; border-bottom: 1px solid #eee; }
-
-    /* Hero */
-    .hero { background-image: url('hero.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; color: white; padding: 60px 20px; text-align: center; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8); }
-
-    /* Group Section */
-    .group-section { max-width: 1200px; margin: 50px auto; padding: 20px; }
-    .group-section h2 { text-align: center; margin-bottom: 25px; font-weight: 600; color: #333; }
-    .group-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-
-    /* Form */
-    .create-group { background: white; padding: 25px; margin-bottom: 35px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; align-items: center; border-radius: 8px; }
-    .create-group form { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; }
-    .create-group input, .create-group select, .create-group button { padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-family: 'Poppins', sans-serif; }
-    .create-group button { background: #000; color: white; cursor: pointer; font-weight: 600; border: none; }
-    .create-group button:hover { opacity: 0.8; }
-    
-    /* New Location Fields Container */
-    #newLocationFields { display: none; flex-direction: column; gap: 12px; border-left: 3px solid #000; padding-left: 10px; margin-left: 5px; }
-
-    /* List */
-    .group-list { padding: 25px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-    .search-input { width: 100%; padding: 12px; border: 1px solid #ccc; margin-bottom: 20px; box-sizing: border-box; border-radius: 5px; }
-
-    /* Cards */
-    .group-card { border: 1px solid #eee; padding: 20px; margin-bottom: 15px; border-radius: 8px; background: #fdfdfd; position: relative; }
-    .participants-list { background: #f0f0f0; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 14px; }
-
-    /* Buttons */
-    .action-row { display: flex; align-items: center; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-    .join-btn { padding: 8px 16px; border: 1px solid #333; background: transparent; cursor: pointer; border-radius: 4px; font-weight: 600; }
-    .joined { background: #333; color: white; }
-    .view-btn { padding: 8px 16px; border: 1px solid #777; background: #fff; color: #333; cursor: pointer; border-radius: 4px; font-size: 14px; }
-    .view-btn:hover { background: #f0f0f0; }
-    .delete-btn { color: red; cursor: pointer; border: none; background: none; font-size: 12px; text-decoration: underline; margin-left: auto; }
-  </style>
 </head>
 <body>
 
-<div class="navbar">
-  <div class="icon" onclick="toggleMenu()">☰</div>
-  <div class="logo"><a href="index.html"><img src="logo.png" alt="Logo"></a></div>
-  <div class="navbar-right">
-    <div id="navUser"></div>
-    <a href="profile.html" class="profile-icon"><img src="profile.png" alt="Profil"></a>
-  </div>
-</div>
-
-<div class="dropdown" id="menu">
-  <a href="index.html">Hem</a>
-  <a href="activities.html">Hitta & Boka</a>
-  <a href="index.html#about">Om oss</a>
-  <a href="profile.html">Min Profil</a>
-</div>
-
-<section class="hero">
-  <div class="hero-content">
-    <h1>Hitta & Boka</h1>
-  </div>
-</section>
-
-<section class="group-section">
-  <h2>Skapa eller gå med i träffar</h2>
-  <div class="group-layout">
-    <div class="create-group">
-      <h3>Skapa en ny träff</h3>
-      <form id="createGroupForm">
-        <input id="groupName" placeholder="Träffens namn" required>
-        
-        <label style="font-size: 12px; color: #666; margin-bottom: -8px;">Plats</label>
-        <select id="locationSelect" required>
-            <option value="" disabled selected>Välj en plats...</option>
-            <option value="NEW" style="font-weight: bold;">➕ Skapa ny plats</option>
-            </select>
-
-        <div id="newLocationFields">
-            <input id="groupCity" placeholder="Stad">
-            <input id="groupAdress" placeholder="Adress">
-        </div>
-
-        <div style="display: flex; flex-direction: column;">
-          <label style="font-size: 12px; color: #666; margin-bottom: 4px;">Tidpunkt</label>
-          <input id="groupTime" type="datetime-local" required>
-        </div>
-        <input id="groupLimit" type="number" placeholder="Antal platser" min="1" required>
-        <button type="submit">Skapa träff</button>
-        <p id="loginMessage" style="color:red; display:none; margin-top:10px; text-align: center;">
-          Du måste vara inloggad för att skapa en träff!
-        </p>
-      </form>
+  <div class="navbar">
+    <div class="icon" onclick="toggleMenu()">☰</div>
+    
+    <div class="logo">
+      <a href="index.html"><img src="logo.png" alt="Logo"></a>
     </div>
 
-    <div class="group-list">
-      <h3>Alla träffar</h3>
-      <input id="searchInput" class="search-input" placeholder="Sök träff...">
-      <div id="groupsContainer">Laddar träffar...</div>
+    <div class="navbar-right">
+      <div id="navUser"></div> <a href="profile.html" class="profile-icon">
+        <img src="profile.png" alt="Profil">
+      </a>
     </div>
   </div>
-</section>
 
-<script>
-  // --- CONFIGURATION ---
-  const API_URL = "http://localhost:3123";
+  <div class="dropdown" id="menu">
+    <a href="index.html">Hem</a>
+    <a href="activities.html">Hitta & Boka</a>
+    <a href="index.html#about">Om oss</a>
+    <a href="profile.html">Min Profil</a>
+  </div>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Hitta & Boka</h1>
+    </div>
+  </section>
 
-  document.addEventListener("DOMContentLoaded", () => {
-    // --- Navbar Toggle ---
-    window.toggleMenu = function () {
-      const menu = document.getElementById("menu");
-      menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
-    }
+  <section class="group-section">
+    <h2>Skapa eller gå med i träffar</h2>
+    <div class="group-layout">
+      
+      <div class="create-group">
+        <h3>Skapa en ny träff</h3>
+        <form id="createGroupForm">
+          <input id="groupName" placeholder="Träffens namn" required>
+          
+          <label style="font-size: 12px; color: #666; margin-bottom: -8px;">Plats</label>
+          <select id="locationSelect" required>
+              <option value="" disabled selected>Välj en plats...</option>
+              <option value="NEW" style="font-weight: bold;">➕ Skapa ny plats</option>
+          </select>
 
-    // --- DOM Elements ---
-    const createForm = document.getElementById("createGroupForm");
-    const loginMessage = document.getElementById("loginMessage");
-    const groupsContainer = document.getElementById("groupsContainer");
-    const searchInput = document.getElementById("searchInput");
-    const locationSelect = document.getElementById("locationSelect");
-    const newLocationFields = document.getElementById("newLocationFields");
-    const groupCityInput = document.getElementById("groupCity");
-    const groupAdressInput = document.getElementById("groupAdress");
+          <div id="newLocationFields">
+              <input id="groupCity" placeholder="Stad">
+              <input id="groupAdress" placeholder="Adress">
+          </div>
 
-    // --- State ---
-    let currentUser = null;
-    let activities = [];
-    let locations = [];
-    let allUsers = [];
+          <div style="display: flex; flex-direction: column;">
+            <label style="font-size: 12px; color: #666; margin-bottom: 4px;">Tidpunkt</label>
+            <input id="groupTime" type="datetime-local" required>
+          </div>
+          <input id="groupLimit" type="number" placeholder="Antal platser" min="1" required>
+          <button type="submit">Skapa träff</button>
+          <p id="loginMessage" style="color:red; display:none; margin-top:10px; text-align: center;">
+            Du måste vara inloggad för att skapa en träff!
+          </p>
+        </form>
+      </div>
 
-    // --- 1. Check User (Via Auth.js if available, else localStorage manually) ---
-    function checkUser() {
-      if (typeof Auth !== 'undefined') {
-        currentUser = Auth.getUser();
-        Auth.updateNavbar();
-      } else {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) currentUser = JSON.parse(storedUser);
+      <div class="group-list">
+        <h3>Alla träffar</h3>
+        <input id="searchInput" class="search-input" placeholder="Sök träff...">
+        <div id="groupsContainer">Laddar träffar...</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
+    <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
+    <p>
+      <a href="privacy.html">Integritetspolicy</a> |
+      <a href="terms.html">Användarvillkor</a>
+    </p>
+  </footer>
+
+  <script src="auth.js"></script> <script>
+    // --- KONFIGURATION ---
+    const API_URL = "http://localhost:3123";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // --- Navbar Toggle ---
+      window.toggleMenu = function () {
+        const menu = document.getElementById("menu");
+        // Ändra display mellan flex och none för dropdownen
+        menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
       }
-    }
 
-    // --- 2. Fetch Data from API ---
-    async function fetchData() {
-      try {
-        const [locRes, actRes, userRes] = await Promise.all([
-          fetch(`${API_URL}/location`),
-          fetch(`${API_URL}/activity`),
-          fetch(`${API_URL}/users`)
-        ]);
+      // --- DOM Elements ---
+      const createForm = document.getElementById("createGroupForm");
+      const loginMessage = document.getElementById("loginMessage");
+      const groupsContainer = document.getElementById("groupsContainer");
+      const searchInput = document.getElementById("searchInput");
+      const locationSelect = document.getElementById("locationSelect");
+      const newLocationFields = document.getElementById("newLocationFields");
+      const groupCityInput = document.getElementById("groupCity");
+      const groupAdressInput = document.getElementById("groupAdress");
 
-        locations = await locRes.json();
-        activities = await actRes.json();
-        allUsers = await userRes.json();
+      // --- State ---
+      let currentUser = null;
+      let activities = [];
+      let locations = [];
+      let allUsers = [];
 
-        populateLocationDropdown();
-        renderActivities();
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        groupsContainer.innerHTML = "<p style='color:red'>Kunde inte ansluta till servern.</p>";
-      }
-    }
-
-    // --- 3. Populate Location Dropdown ---
-    function populateLocationDropdown() {
-        while (locationSelect.options.length > 2) {
-            locationSelect.remove(2);
-        }
-
-        locations.forEach(loc => {
-            const option = document.createElement("option");
-            option.value = loc.id;
-            // VISAR: Adress, Stad
-            option.textContent = `${loc.address}, ${loc.city}`;
-            locationSelect.appendChild(option);
-        });
-    }
-
-    // --- 4. Toggle New Location Fields ---
-    locationSelect.addEventListener('change', (e) => {
-        if (e.target.value === 'NEW') {
-            newLocationFields.style.display = 'flex';
-            groupCityInput.setAttribute('required', 'true');
-            groupAdressInput.setAttribute('required', 'true');
+      // --- 1. Check User ---
+      function checkUser() {
+        if (typeof Auth !== 'undefined') {
+          currentUser = Auth.getUser();
+          Auth.updateNavbar();
         } else {
-            newLocationFields.style.display = 'none';
-            groupCityInput.removeAttribute('required');
-            groupAdressInput.removeAttribute('required');
+          // Fallback om auth.js inte laddades korrekt
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+              currentUser = JSON.parse(storedUser);
+              const navUser = document.getElementById('navUser');
+              if(navUser) navUser.innerText = currentUser.name;
+          }
         }
-    });
-
-    // --- 5. Render Activities ---
-    async function renderActivities() {
-      groupsContainer.innerHTML = "";
-      const displayList = activities.slice().reverse();
-
-      if (displayList.length === 0) {
-        groupsContainer.innerHTML = "<p>Inga träffar hittades.</p>";
-        return;
       }
 
-      for (const activity of displayList) {
-        const loc = locations.find(l => l.id === activity.locationId) || { city: "Okänd", address: "" };
+      // --- 2. Fetch Data ---
+      async function fetchData() {
+        try {
+          const [locRes, actRes, userRes] = await Promise.all([
+            fetch(`${API_URL}/location`),
+            fetch(`${API_URL}/activity`),
+            fetch(`${API_URL}/users`)
+          ]);
 
-        let participants = [];
-        let isJoined = false;
-        let participantNames = "Inga deltagare än.";
+          locations = await locRes.json();
+          activities = await actRes.json();
+          allUsers = await userRes.json();
+
+          populateLocationDropdown();
+          renderActivities();
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          groupsContainer.innerHTML = "<p style='color:red'>Kunde inte ansluta till servern.</p>";
+        }
+      }
+
+      // --- 3. Populate Location Dropdown ---
+      function populateLocationDropdown() {
+          while (locationSelect.options.length > 2) {
+              locationSelect.remove(2);
+          }
+
+          locations.forEach(loc => {
+              const option = document.createElement("option");
+              option.value = loc.id;
+              option.textContent = `${loc.address}, ${loc.city}`;
+              locationSelect.appendChild(option);
+          });
+      }
+
+      // --- 4. Toggle New Location Fields ---
+      locationSelect.addEventListener('change', (e) => {
+          if (e.target.value === 'NEW') {
+              newLocationFields.style.display = 'flex';
+              groupCityInput.setAttribute('required', 'true');
+              groupAdressInput.setAttribute('required', 'true');
+          } else {
+              newLocationFields.style.display = 'none';
+              groupCityInput.removeAttribute('required');
+              groupAdressInput.removeAttribute('required');
+          }
+      });
+
+      // --- 5. Render Activities ---
+      async function renderActivities() {
+        groupsContainer.innerHTML = "";
+        const displayList = activities.slice().reverse();
+
+        if (displayList.length === 0) {
+          groupsContainer.innerHTML = "<p>Inga träffar hittades.</p>";
+          return;
+        }
+
+        for (const activity of displayList) {
+          const loc = locations.find(l => l.id === activity.locationId) || { city: "Okänd", address: "" };
+
+          let participants = [];
+          let isJoined = false;
+          let participantNames = "Inga deltagare än.";
+
+          try {
+            const pRes = await fetch(`${API_URL}/userActivity/activity/${activity.id}`);
+            if (pRes.ok) {
+              participants = await pRes.json();
+              if (currentUser) {
+                isJoined = participants.some(p => p.userId === currentUser.id);
+              }
+              if (participants.length > 0) {
+                participantNames = participants.map(p => {
+                  const userObj = allUsers.find(u => u.id === p.userId);
+                  return userObj ? userObj.name : "Okänd";
+                }).join(", ");
+              }
+            }
+          } catch (err) { console.error(err); }
+
+          const spotsLeft = activity.seats - participants.length;
+          const card = document.createElement("div");
+          card.className = "group-card";
+          card.setAttribute("data-name", activity.name.toLowerCase());
+
+          card.innerHTML = `
+            <h3 style="margin-top:0;">${activity.name}</h3>
+            <p style="color:#666; font-size:14px;">
+              📍 ${loc.address}, ${loc.city} <br>
+              📅 ${new Date(activity.time).toLocaleString("sv-SE")}
+            </p>
+            <p style="font-size:14px;">Platser kvar: <b>${Math.max(0, spotsLeft)}</b> / ${activity.seats}</p>
+            <div class="action-row">
+              <button class="join-btn ${isJoined ? "joined" : ""}" id="btn-${activity.id}">
+                ${isJoined ? "Du är med (Lämna)" : "Gå med"}
+              </button>
+              <button class="view-btn" onclick="document.getElementById('list-${activity.id}').style.display = document.getElementById('list-${activity.id}').style.display === 'none' ? 'block' : 'none'">
+                Visa deltagare
+              </button>
+              ${(currentUser && activity.creatorId === currentUser.id) ? `<button class="delete-btn" id="del-${activity.id}">Ta bort</button>` : ''}
+            </div>
+            <div id="list-${activity.id}" class="participants-list" style="display:none;">
+              <strong>Deltagare:</strong> ${participantNames}
+            </div>
+          `;
+
+          const btn = card.querySelector(`#btn-${activity.id}`);
+          btn.onclick = async () => {
+            if (!currentUser) {
+              alert("Du måste logga in för att gå med i en träff!");
+              return;
+            }
+            try {
+              if (isJoined) {
+                await fetch(`${API_URL}/userActivity`, {
+                  method: 'DELETE',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ userId: currentUser.id, activityId: activity.id })
+                });
+              } else {
+                if (spotsLeft <= 0) { alert("Fullbokat!"); return; }
+                await fetch(`${API_URL}/userActivity`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ userId: currentUser.id, activityId: activity.id })
+                });
+              }
+              fetchData();
+            } catch (err) { console.error(err); }
+          };
+
+          const delBtn = card.querySelector(`#del-${activity.id}`);
+          if (delBtn) {
+            delBtn.onclick = async () => {
+              if (confirm("Vill du verkligen ta bort denna träff?")) {
+                await fetch(`${API_URL}/activity`, {
+                  method: 'DELETE',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ activityId: activity.id })
+                });
+                fetchData();
+              }
+            }
+          }
+          groupsContainer.appendChild(card);
+        }
+      }
+
+      // --- 6. Create Group Logic ---
+      createForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        if (!currentUser) {
+          loginMessage.style.display = "block";
+          return;
+        }
+        const name = document.getElementById("groupName").value;
+        const time = document.getElementById("groupTime").value;
+        const limit = Number(document.getElementById("groupLimit").value);
+        
+        const selection = locationSelect.value;
+        let finalLocationId = selection;
 
         try {
-          const pRes = await fetch(`${API_URL}/userActivity/activity/${activity.id}`);
-          if (pRes.ok) {
-            participants = await pRes.json();
-            if (currentUser) {
-              isJoined = participants.some(p => p.userId === currentUser.id);
-            }
-            if (participants.length > 0) {
-              participantNames = participants.map(p => {
-                const userObj = allUsers.find(u => u.id === p.userId);
-                return userObj ? userObj.name : "Okänd";
-              }).join(", ");
-            }
+          if (selection === 'NEW') {
+              const city = groupCityInput.value;
+              const address = groupAdressInput.value;
+
+              const locRes = await fetch(`${API_URL}/location`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name: "Plats för " + name, address: address, city: city })
+              });
+              if (!locRes.ok) throw new Error("Kunde inte skapa plats");
+              const newLocation = await locRes.json();
+              finalLocationId = newLocation.id;
           }
+
+          const actRes = await fetch(`${API_URL}/activity`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, time, seats: limit, locationId: finalLocationId, creatorId: currentUser.id })
+          });
+          if (!actRes.ok) throw new Error("Kunde inte skapa träff");
+
+          const newActivity = await actRes.json();
+          
+          await fetch(`${API_URL}/userActivity`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, activityId: newActivity.id })
+          });
+
+          createForm.reset();
+          newLocationFields.style.display = 'none'; 
+          groupCityInput.removeAttribute('required');
+          
+          loginMessage.style.display = "none";
+          fetchData();
         } catch (err) { console.error(err); }
-
-        const spotsLeft = activity.seats - participants.length;
-        const card = document.createElement("div");
-        card.className = "group-card";
-        card.setAttribute("data-name", activity.name.toLowerCase());
-
-        // HÄR VISAS ADRESS OCH STAD:
-        card.innerHTML = `
-        <h3 style="margin-top:0;">${activity.name}</h3>
-        <p style="color:#666; font-size:14px;">
-          📍 ${loc.address}, ${loc.city} <br>
-          📅 ${new Date(activity.time).toLocaleString("sv-SE")}
-        </p>
-        <p style="font-size:14px;">Platser kvar: <b>${Math.max(0, spotsLeft)}</b> / ${activity.seats}</p>
-        <div class="action-row">
-          <button class="join-btn ${isJoined ? "joined" : ""}" id="btn-${activity.id}">
-            ${isJoined ? "Du är med (Lämna)" : "Gå med"}
-          </button>
-          <button class="view-btn" onclick="document.getElementById('list-${activity.id}').style.display = document.getElementById('list-${activity.id}').style.display === 'none' ? 'block' : 'none'">
-            Visa deltagare
-          </button>
-          ${(currentUser && activity.creatorId === currentUser.id) ? `<button class="delete-btn" id="del-${activity.id}">Ta bort</button>` : ''}
-        </div>
-        <div id="list-${activity.id}" class="participants-list" style="display:none;">
-          <strong>Deltagare:</strong> ${participantNames}
-        </div>
-      `;
-
-        const btn = card.querySelector(`#btn-${activity.id}`);
-        btn.onclick = async () => {
-          if (!currentUser) {
-            alert("Du måste logga in för att gå med i en träff!");
-            return;
-          }
-          try {
-            if (isJoined) {
-              await fetch(`${API_URL}/userActivity`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: currentUser.id, activityId: activity.id })
-              });
-            } else {
-              if (spotsLeft <= 0) { alert("Fullbokat!"); return; }
-              await fetch(`${API_URL}/userActivity`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: currentUser.id, activityId: activity.id })
-              });
-            }
-            fetchData();
-          } catch (err) { console.error(err); }
-        };
-
-        const delBtn = card.querySelector(`#del-${activity.id}`);
-        if (delBtn) {
-          delBtn.onclick = async () => {
-            if (confirm("Vill du verkligen ta bort denna träff?")) {
-              await fetch(`${API_URL}/activity`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ activityId: activity.id })
-              });
-              fetchData();
-            }
-          }
-        }
-        groupsContainer.appendChild(card);
-      }
-    }
-
-    // --- 6. Create Group Logic ---
-    createForm.addEventListener("submit", async e => {
-      e.preventDefault();
-      if (!currentUser) {
-        loginMessage.style.display = "block";
-        return;
-      }
-      const name = document.getElementById("groupName").value;
-      const time = document.getElementById("groupTime").value;
-      const limit = Number(document.getElementById("groupLimit").value);
-      
-      const selection = locationSelect.value;
-      let finalLocationId = selection;
-
-      try {
-        // Step A: Handle Location
-        if (selection === 'NEW') {
-            const city = groupCityInput.value;
-            const address = groupAdressInput.value;
-
-            const locRes = await fetch(`${API_URL}/location`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: "Plats för " + name, address: address, city: city })
-            });
-            if (!locRes.ok) throw new Error("Kunde inte skapa plats");
-            const newLocation = await locRes.json();
-            finalLocationId = newLocation.id;
-        }
-
-        // Step B: Create Activity
-        const actRes = await fetch(`${API_URL}/activity`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, time, seats: limit, locationId: finalLocationId, creatorId: currentUser.id })
-        });
-        if (!actRes.ok) throw new Error("Kunde inte skapa träff");
-
-        const newActivity = await actRes.json();
-        
-        // Step C: Auto-join creator
-        await fetch(`${API_URL}/userActivity`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: currentUser.id, activityId: newActivity.id })
-        });
-
-        // Reset form
-        createForm.reset();
-        newLocationFields.style.display = 'none'; 
-        groupCityInput.removeAttribute('required');
-        
-        loginMessage.style.display = "none";
-        fetchData();
-      } catch (err) { console.error(err); }
-    });
-
-    // --- 7. Search Function ---
-    searchInput.addEventListener("input", e => {
-      const search = e.target.value.toLowerCase();
-      document.querySelectorAll(".group-card").forEach(card => {
-        card.style.display = card.getAttribute("data-name").includes(search) ? "block" : "none";
       });
+
+      // --- 7. Search Function ---
+      searchInput.addEventListener("input", e => {
+        const search = e.target.value.toLowerCase();
+        document.querySelectorAll(".group-card").forEach(card => {
+          card.style.display = card.getAttribute("data-name").includes(search) ? "block" : "none";
+        });
+      });
+
+      // --- Initialize ---
+      checkUser();
+      fetchData();
     });
-
-    // --- Initialize ---
-    checkUser();
-    fetchData();
-  });
-</script>
-
-<footer style="background:#000; color:#fff; text-align:center; padding:30px; font-size:14px;">
-  <p>© 2026 Äta Tillsammans. Alla rättigheter förbehållna.</p>
-  <p>Kontakt: info@atatillsammans.se | Tel: 08-123 456 78</p>
-  <p>
-    <a href="privacy.html" style="color:#aaa; text-decoration:underline;">Integritetspolicy</a> |
-    <a href="terms.html" style="color:#aaa; text-decoration:underline;">Användarvillkor</a>
-  </p>
-</footer>
-
-<script src="auth.js"></script>
+  </script>
 
 </body>
-</html>
+</html> 
